@@ -8,18 +8,18 @@ class Position;
 enum PieceType
 {
     Pawn = 1,
-    Knignt = 2,
+    Knight = 2,
     Bishop = 3,
     Rook = 4,
     Queen = 5,
-    King = 6
+    King = 6,
+    None = 0
 };
 
 enum Color
 {
     Black = 1,
-    White = 2,
-    None = 0
+    White = 2
 };
 
 class Piece;

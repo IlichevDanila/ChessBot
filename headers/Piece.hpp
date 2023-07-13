@@ -8,11 +8,9 @@
 
 class Piece
 {
-private:
-    static int count;
-    int id;
-
 protected:
+    int moves;
+
     Position pos;
     Color color;
     PieceType type;
@@ -27,7 +25,9 @@ public:
 
     void setPos(Position pos_);
 
-    std::list<Move> getMoves(const Board &) const;
+    std::list<Move> getPseudolegalMoves(Board &board);
+
+    int getMoves() const;
 };
 
 
