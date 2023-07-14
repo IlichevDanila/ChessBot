@@ -6,10 +6,10 @@ SOURCES=$(wildcard sources/*.cpp)
 OBJS=$(patsubst sources/%.cpp, objs/%.o, $(SOURCES))
 
 all: main.o $(OBJS)
-	$(CC) $(LFLAGS) objs/main.o $(OBJS) -o test
+	$(CC) $(LFLAGS) main.o $(OBJS) -o test
 
 main.o: main.cpp
-	$(CC) $(CFLAGS) main.cpp -c -o objs/main.o
+	$(CC) $(CFLAGS) main.cpp -c -o main.o
 
 objs/%.o: sources/%.cpp headers/%.hpp
 	$(CC) $(CFLAGS) $< -c -o $@

@@ -18,17 +18,11 @@ enum PieceType
 
 enum Color
 {
-    Black = 1,
-    White = 2
+    Black = 0,
+    White = 1
 };
 
 class Piece;
-class Pawn;
-class Knight;
-class Bishop;
-class Rook;
-class Queen;
-class King;
 using PiecePtr = std::shared_ptr<Piece>;
 
 class Move;
