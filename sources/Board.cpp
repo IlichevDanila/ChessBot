@@ -1,4 +1,5 @@
 #include <exception>
+#include <algorithm>
 
 #include "Position.hpp"
 #include "Piece.hpp"
@@ -265,6 +266,11 @@ bool Board::checkIfMovePseudolegal(const Move &move)
 
 bool Board::checkIfMoveLegal(const Move &move)
 {
+    if(!checkIfMovePseudolegal(move))
+    {
+        return false;
+    }
+
     bool result = true;
     doMove(move);
     for(auto &nextMove : getPseudolegalMoves())
@@ -352,4 +358,182 @@ std::string Board::getDisplayString()
 PiecePtr Board::getPrevEnPass() const
 {
     return prevEnPass;
+}
+
+void Board::doMove(const Move &move)
+{
+    //Check legality
+    if(!checkIfMoveLegal(move))
+    {
+        throw std::runtime_error("Illeal move");
+    }
+
+    //Check the move's color
+    if(move.movingPiece->getColor() != playerColor)
+    {
+        throw std::runtime_error("Wrong color");
+    }
+
+    //Change last en-passant pawn
+    prevEnPass = nullptr;
+    if(move.movingPiece->getType() == PieceType::Pawn && move.to.getRank() - move.from.getRank() == 2)
+    {
+        prevEnPass = move.movingPiece;
+    }
+
+    //Move captured piece to the 'captured' list
+    if(move.capturedPiece != nullptr)
+    {
+        if(playerColor == Color::White)
+        {
+            capturedBlacks.push_back(move.capturedPiece);
+            blackPieces.erase(std::find(blackPieces.begin(), blackPieces.end(), move.capturedPiece));
+        }
+        else
+        {
+            capturedWhites.push_back(move.capturedPiece);
+            whitePieces.erase(std::find(whitePieces.begin(), whitePieces.end(), move.capturedPiece));
+        }
+    }
+
+    //Move the figure
+    move.movingPiece->setPos(move.to);
+
+    //Promotion (move moving figure to 'captured' and create new)
+    if(move.promotionResult != nullptr)
+    {
+        if(playerColor == Color::Black)
+        {
+            capturedBlacks.push_back(move.movingPiece);
+            blackPieces.erase(std::find(blackPieces.begin(), blackPieces.end(), move.movingPiece));
+            blackPieces.push_back(move.promotionResult);
+        }
+        else
+        {
+            capturedWhites.push_back(move.movingPiece);
+            whitePieces.erase(std::find(whitePieces.begin(), whitePieces.end(), move.movingPiece));
+            whitePieces.push_back(move.promotionResult);
+        }
+    }
+
+    //Castle
+    if(move.shortCastle)
+    {
+        if(playerColor == Color::White)
+        {
+            PiecePtr rook = pieceInPlace(Position(7, 0));
+            rook->setPos(Position(5, 0));
+        }
+        else
+        {
+            PiecePtr rook = pieceInPlace(Position(0, 7));
+            rook->setPos(Position(2, 7));
+        }
+    }
+    if(move.longCastle)
+    {
+        if(playerColor == Color::White)
+        {
+            PiecePtr rook = pieceInPlace(Position(0, 0));
+            rook->setPos(Position(2, 0));
+        }
+        else
+        {
+            PiecePtr rook = pieceInPlace(Position(7, 7));
+            rook->setPos(Position(5, 7));
+        }
+    }
+
+    if(playerColor == Color::Black)
+    {
+        playerColor = Color::White;
+    }
+    else
+    {
+        playerColor = Color::Black;
+    }
+}
+
+void Board::undoMove(const Move &move)
+{
+    //Change last en-passant pawn ?????
+    prevEnPass = nullptr;
+    
+    //Move captured piece from the 'captured' list to main
+    if(move.capturedPiece != nullptr)
+    {
+        if(playerColor == Color::Black)
+        {
+            blackPieces.push_back(move.capturedPiece);
+            capturedBlacks.erase(std::find(capturedBlacks.begin(), capturedBlacks.end(), move.capturedPiece));
+        }
+        else
+        {
+            whitePieces.push_back(move.capturedPiece);
+            capturedWhites.erase(std::find(capturedWhites.begin(), capturedWhites.end(), move.capturedPiece));
+        }
+    }
+
+    //Move the figure
+    move.movingPiece->setPos(move.from);
+
+    //Promotion (move moving figure from 'captured' and delete promotion result)
+    if(move.promotionResult != nullptr)
+    {
+        if(playerColor == Color::White)
+        {
+            //capturedBlacks.push_back(move.capturedPiece);
+            //blackPieces.erase(std::find(blackPieces.begin(), blackPieces.end(), move.capturedPiece));
+            //blackPieces.push_back(move.promotionResult);
+            blackPieces.erase(std::find(blackPieces.begin(), blackPieces.end(), move.promotionResult));
+            capturedBlacks.erase(std::find(capturedBlacks.begin(), capturedBlacks.end(), move.movingPiece));
+            blackPieces.push_back(move.movingPiece);
+        }
+        else
+        {
+            //capturedWhites.push_back(move.capturedPiece);
+            //whitePieces.erase(std::find(whitePieces.begin(), whitePieces.end(), move.capturedPiece));
+            //whitePieces.push_back(move.promotionResult);
+            whitePieces.erase(std::find(whitePieces.begin(), whitePieces.end(), move.promotionResult));
+            capturedWhites.erase(std::find(capturedWhites.begin(), capturedWhites.end(), move.movingPiece));
+            whitePieces.push_back(move.movingPiece);
+        }
+    }
+
+    //Castle
+    if(move.shortCastle)
+    {
+        if(playerColor == Color::Black)
+        {
+            PiecePtr rook = pieceInPlace(Position(5, 0));
+            rook->setPos(Position(7, 0));
+        }
+        else
+        {
+            PiecePtr rook = pieceInPlace(Position(2, 7));
+            rook->setPos(Position(0, 7));
+        }
+    }
+    if(move.longCastle)
+    {
+        if(playerColor == Color::Black)
+        {
+            PiecePtr rook = pieceInPlace(Position(2, 0));
+            rook->setPos(Position(0, 0));
+        }
+        else
+        {
+            PiecePtr rook = pieceInPlace(Position(5, 7));
+            rook->setPos(Position(7, 7));
+        }
+    }
+
+    if(playerColor == Color::Black)
+    {
+        playerColor = Color::White;
+    }
+    else
+    {
+        playerColor = Color::Black;
+    }
 }
