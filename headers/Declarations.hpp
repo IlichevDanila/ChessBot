@@ -1,11 +1,12 @@
 #ifndef DECLARATIONS_HPP
 #define DECLARATIONS_HPP
 
+#include <cstdint>
 #include <list>
 
 class Position;
 
-enum PieceType
+enum PieceType : std::uint8_t
 {
     Pawn = 1,
     Knight = 2,
@@ -16,7 +17,7 @@ enum PieceType
     None = 0
 };
 
-enum Color
+enum Color : std::uint8_t
 {
     Black = 0,
     White = 1

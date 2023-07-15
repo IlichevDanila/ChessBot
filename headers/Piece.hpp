@@ -80,6 +80,7 @@ public:
     inline void unsetMoved() { body.moved = 0; }
 
     friend PieceSet;
+    friend Move;
 };
 
 class PieceSet

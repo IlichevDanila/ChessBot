@@ -1,4 +1,5 @@
 #include "Piece.hpp"
+#include "Move.hpp"
 
 Piece *PieceSet::find(Piece piece)
 {
@@ -68,3 +69,24 @@ void PieceSet::erase(Piece *piece)
     *piece = *(pieces + (size - 1));
     --size;
 }
+
+/*MoveSet Piece::getPseudolegalMoves(const Board &board) const
+{
+    switch(body.type)
+    {
+    case PieceType::Pawn:
+        return pawnMoves(board);
+    case PieceType::Knight:
+        return knightMoves(board);
+    case PieceType::Bishop:
+        return bishopMoves(board);
+    case PieceType::Rook:
+        return rookMoves(board);
+    case PieceType::Queen:
+        return queenMoves(board);
+    case PieceType::King:
+        return kingMoves(board);
+    default:
+        return MoveSet();
+    }
+}*/
