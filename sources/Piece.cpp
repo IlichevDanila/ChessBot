@@ -1,43 +1,70 @@
 #include "Piece.hpp"
 
-Piece::Piece(Color color_, PieceType type_, Position pos_)
-    : color(color_)
-    , type(type_)
-    , pos(pos_)
-    , moved(0)
-{}
-
-Piece Piece::EmptyPiece()
+Piece *PieceSet::find(Piece piece)
 {
-    return Piece(Color::Black, PieceType::None, Position(0));
+    if(size == 0)
+        return nullptr;
+
+    //TODO: binary search
+    for(int i = 0; i < size; ++i)
+    {
+        if(pieces[i] == piece)
+        {
+            return &pieces[i];
+        }
+    }
+
+    return nullptr;
 }
 
-Color Piece::getColor() const
+const Piece *PieceSet::find(Piece piece) const
 {
-    return static_cast<Color>(color);
+    return const_cast<const Piece *>(find(piece));
 }
 
-PieceType Piece::getType() const
+Piece *PieceSet::find(Position pos)
 {
-    return static_cast<PieceType>(type);
+    if(size == 0)
+        return nullptr;
+
+    //TODO: binary search
+    for(int i = 0; i < size; ++i)
+    {
+        if(pieces[i].pos == pos)
+        {
+            return &pieces[i];
+        }
+    }
+
+    return nullptr;
 }
 
-Position Piece::getPos() const
+const Piece *PieceSet::find(Position pos) const
 {
-    return pos;
+    return const_cast<const Piece *>(find(pos));
 }
 
-bool Piece::wasMoved() const
+void PieceSet::push_back(Piece piece)
 {
-    return static_cast<bool>(moved);
+    //TODO: Do i need check?
+    if(find(piece.pos) != nullptr)
+        return;
+
+    if(size == 16)
+        return;
+
+    //TODO: sorted insertion
+    pieces[size] = piece;
+    ++size;
 }
 
-bool Piece::operator==(const Piece &rhs) const
+void PieceSet::erase(Piece *piece)
 {
-    return color == rhs.color && type == rhs.type && pos == rhs.pos && moved == rhs.moved;
-}
+    //TODO: do i need check?
+    if(piece < pieces || piece >= (pieces + size))
+        return;
 
-/*std::list<Move> Piece::getPseudolegalMoves() const
-{
-    return {};
-}*/
+    //TODO: sorted erase
+    *piece = *(pieces + (size - 1));
+    --size;
+}

@@ -1,7 +1,7 @@
 #ifndef DECLARATIONS_HPP
 #define DECLARATIONS_HPP
 
-#include <memory>
+#include <list>
 
 class Position;
 
@@ -23,12 +23,12 @@ enum Color
 };
 
 class Piece;
-using PiecePtr = std::shared_ptr<Piece>;
+class PieceSet;
 
 class Move;
-using MovePtr = std::shared_ptr<Move>;
+//class MoveSet;
+using MoveSet = std::list<Move>;
 
 class Board;
-using BoardPtr = std::shared_ptr<Board>;
 
 #endif
