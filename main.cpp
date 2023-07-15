@@ -15,5 +15,9 @@ int main()
     std::cout << "Move: " << sizeof(Move) << " byte(s)" << std::endl;
     std::cout << "MoveSet: " << sizeof(MoveSet) << " byte(s)" << std::endl;
     std::cout << "Board: " << sizeof(Board) << " byte(s)" << std::endl;
+
+    Board board = Board::startingBoard();
+    std::cout << std::endl << std::endl << board.getDislayString() << std::endl;
+
     return 0;
 }

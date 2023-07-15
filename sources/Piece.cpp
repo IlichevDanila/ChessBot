@@ -20,7 +20,19 @@ Piece *PieceSet::find(Piece piece)
 
 const Piece *PieceSet::find(Piece piece) const
 {
-    return const_cast<const Piece *>(find(piece));
+    if(size == 0)
+        return nullptr;
+
+    //TODO: binary search
+    for(int i = 0; i < size; ++i)
+    {
+        if(pieces[i] == piece)
+        {
+            return &pieces[i];
+        }
+    }
+
+    return nullptr;
 }
 
 Piece *PieceSet::find(Position pos)
@@ -42,7 +54,19 @@ Piece *PieceSet::find(Position pos)
 
 const Piece *PieceSet::find(Position pos) const
 {
-    return const_cast<const Piece *>(find(pos));
+    if(size == 0)
+        return nullptr;
+
+    //TODO: binary search
+    for(int i = 0; i < size; ++i)
+    {
+        if(pieces[i].pos == pos)
+        {
+            return &pieces[i];
+        }
+    }
+
+    return nullptr;
 }
 
 void PieceSet::push_back(Piece piece)

@@ -24,8 +24,39 @@ private:
     {}
 
 public:
+    inline std::uint32_t Hash() const
+    {
+        return (from.Hash() << 24) |
+                (to.Hash() << 16) |
+                (promotion << 8) |
+                (castle << 3) |
+                color;
+    }
+
     Move() : color(Color::Black), from(), to(), castle(CastleType::None), promotion() {}
     ~Move();
+
+    inline bool operator==(const Move &rhs)
+    {
+        return Hash() == rhs.Hash();
+    }
+
+    inline bool operator!=(const Move &rhs)
+    {
+        return Hash() == rhs.Hash();
+    }
+
+    static Move FromNotation(const std::string &notation, const Board &board);
+
+    inline static Move FromHash(std::uint32_t hash)
+    {
+        return Move(
+            Position(hash >> 24), Position((hash >> 16) & 0xff),
+            static_cast<Color>(hash & 0x3),
+            PieceBody((hash >> 8) & 0xff),
+            static_cast<CastleType>((hash >> 3) & 0x7)
+        );
+    }
 
     inline static Move SimpleMovement(Piece piece, Position dest)
     {

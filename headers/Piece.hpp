@@ -45,6 +45,7 @@ private:
 
 public:
     Piece() : body(), pos(0, 0) {}
+    Piece(std::uint16_t hash) : body(hash & 0xff), pos(hash >> 8) {}
     Piece(const Piece &rhs) : body(rhs.body), pos(rhs.pos) {}
     Piece(PieceBody body_, Position pos_) : body(body_), pos(pos_) {}
     Piece(Color color_, PieceType type_, Position pos_) : body(color_, type_, 0), pos(pos_) {}
@@ -86,7 +87,7 @@ public:
 class PieceSet
 {
 private:
-    char size;
+    char size = 0;
     Piece pieces[16];
 
 public:
