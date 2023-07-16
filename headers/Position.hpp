@@ -42,6 +42,8 @@ public:
 
     Position add(char dfile, char drank) const;
     Position add(Position dp) const;
+
+    std::uint64_t boardMask() const;
 };
 
 #endif

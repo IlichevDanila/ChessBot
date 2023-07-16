@@ -14,13 +14,14 @@ private:
     Position from, to;
     PieceBody promotion;
     CastleType castle;
+    const Piece *enPass;
 
     Move(Position from_, Position to_,
         Color color_, PieceBody promotion_,
-        CastleType castle_)
+        CastleType castle_, const Piece *enPass_ = nullptr)
         : from(from_), to(to_)
         , color(color_), promotion(promotion_)
-        , castle(castle_)
+        , castle(castle_), enPass(enPass_)
     {}
 
 public:
@@ -33,7 +34,11 @@ public:
                 color;
     }
 
-    Move() : color(Color::Black), from(), to(), castle(CastleType::None), promotion() {}
+    Move()
+        : color(Color::Black), from(), to()
+        , castle(CastleType::None), promotion(), enPass(nullptr)
+    {}
+
     ~Move();
 
     inline bool operator==(const Move &rhs)
@@ -91,6 +96,15 @@ public:
             Position(), Position(),
             color,
             PieceBody(), CastleType::Long
+        );
+    }
+
+    inline static Move EnPassant(Piece piece, Position dest, const Piece *enPassPawn)
+    {
+        return Move(
+            piece.pos, dest,
+            static_cast<Color>(piece.body.color),
+            PieceBody(), CastleType::None, enPassPawn
         );
     }
 

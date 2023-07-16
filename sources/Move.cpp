@@ -51,3 +51,6 @@ Move Move::FromNotation(const std::string &notation, const Board &board)
 
     return SimpleMovement(*piece, dest);
 }
+
+Move::~Move()
+{}

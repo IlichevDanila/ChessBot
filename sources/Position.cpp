@@ -21,3 +21,17 @@ Position Position::add(Position dp) const
 {
     return Position(file + dp.file, rank + dp.rank);
 }
+
+std::uint64_t Position::boardMask() const
+{
+    std::uint64_t res = 1;
+    for(int i = 0; i < rank; ++i)
+    {
+        res <<= 8;
+    }
+    for(int i = 0; i < file; ++i)
+    {
+        res <<= 1;
+    }
+    return res;
+}

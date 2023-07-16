@@ -29,13 +29,15 @@ public:
     const Piece *getPieceByPos(Position pos) const;
     const Piece *getPieceByPos(Position pos, Color hint) const;
 
-    MoveSet getPseudolegalMoves();
-    MoveSet getPseudolegalMoves(Color color);
-    MoveSet getLegalMoves();
-    MoveSet getLegalMoves(Color color);
+    MoveSet getPseudolegalMoves() const;
+    MoveSet getPseudolegalMoves(Color color) const;
+    MoveSet getLegalMoves() const;
+    MoveSet getLegalMoves(Color color) const;
 
     bool checkIfMovePseudolegal(const Move &move) const;
     bool checkIfMoveLegal(const Move &move) const;
+
+    std::uint64_t getAttackedMask(Color color) const;
 
     Board doMove(const Move &move) const;
 

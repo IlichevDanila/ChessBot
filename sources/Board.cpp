@@ -1,5 +1,8 @@
+#include <stdexcept>
+
 #include "Position.hpp"
 #include "Piece.hpp"
+#include "Move.hpp"
 #include "Board.hpp"
 
 Board Board::startingBoard()
@@ -167,4 +170,115 @@ std::string Board::getDislayString() const
     }
     res += "  abcdefgh";
     return res;
+}
+
+MoveSet Board::getPseudolegalMoves() const
+{
+    MoveSet result, chunk;
+    for(const Piece &p : whitePieces)
+    {
+        chunk = p.getPseudolegalMoves(*this);
+        result.insert(result.end(), chunk.begin(), chunk.end());
+    }
+    for(const Piece &p : blackPieces)
+    {
+        chunk = p.getPseudolegalMoves(*this);
+        result.insert(result.end(), chunk.begin(), chunk.end());
+    }
+    return result;
+}
+
+MoveSet Board::getPseudolegalMoves(Color color) const
+{
+    MoveSet result, chunk;
+    if(color == Color::White)
+    {
+        for(const Piece &p : whitePieces)
+        {
+            chunk = p.getPseudolegalMoves(*this);
+            result.insert(result.end(), chunk.begin(), chunk.end());
+        }    
+    }
+    else
+    {
+        for(const Piece &p : blackPieces)
+        {
+            chunk = p.getPseudolegalMoves(*this);
+            result.insert(result.end(), chunk.begin(), chunk.end());
+        }
+    }
+    
+    return result;
+}
+
+bool Board::checkIfMovePseudolegal(const Move &move) const
+{
+    if(playerColor != move.color)
+    {
+        return false;
+    }
+
+    const Piece *piece = getPieceByPos(move.from);
+    if(piece == nullptr)
+    {
+        return false;
+    }
+
+    bool found = false;
+    for(Move &mv : piece->getPseudolegalMoves(*this))
+    {
+        if(mv == move)
+        {
+            found = true;
+            break;
+        }
+    }
+
+    return found;
+}
+
+bool Board::checkIfMoveLegal(const Move &move) const
+{
+    /*if(!checkIfMovePseudolegal(move))
+    {
+        return false;
+    }*/
+
+    Board future = doMove(move);
+
+    Piece *king = nullptr;
+    if(move.color == Color::White)
+    {
+        for(Piece &p : future.whitePieces)
+        {
+            if(p.getType() == PieceType::King)
+            {
+                king = &p;
+                break;
+            }
+        }
+    }
+    else
+    {
+        for(Piece &p : future.blackPieces)
+        {
+            if(p.getType() == PieceType::King)
+            {
+                king = &p;
+                break;
+            }
+        }
+    }
+
+    if(king == nullptr)
+    {
+        throw std::runtime_error("King does not exist. Why?");
+    }
+
+    if((future.getAttackedMask(future.playerColor) & king->getPos().boardMask()) != 0)
+    {
+        return false;
+    }
+
+    return true;
 }
