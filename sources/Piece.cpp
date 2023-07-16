@@ -159,7 +159,7 @@ MoveSet Piece::pawnMoves(const Board &board) const
         }
     }
     //En passant (or however it called idk)
-    else if(enPass != nullptr && enPass->getPos() == pos.add(1, 0))
+    else if(enPass != nullptr && enPass->getPos() == pos.add(1, 0) && enPass->getColor() != body.color)
     {
         result.push_back(Move::EnPassant(*this, dest, enPass));
     }
@@ -186,7 +186,7 @@ MoveSet Piece::pawnMoves(const Board &board) const
         }
     }
     //En passant (or however it called idk)
-    else if(enPass != nullptr && enPass->getPos() == pos.add(-1, 0))
+    else if(enPass != nullptr && enPass->getPos() == pos.add(-1, 0) && enPass->getColor() != body.color)
     {
         result.push_back(Move::EnPassant(*this, dest, enPass));
     }
@@ -359,7 +359,7 @@ MoveSet Piece::kingMoves(const Board &board) const
     }
 
     //Castles
-    //TODO: check if mediate positions under attack
+    //TODO: check if mediate positions is under attack
     if(wasMoved())
     {
         return result;
@@ -434,4 +434,200 @@ MoveSet Piece::getPseudolegalMoves(const Board &board) const
     default:
         return MoveSet();
     }
+}
+
+std::uint64_t Piece::getAttackedMask(const Board &board) const
+{
+    switch(body.type)
+    {
+    case PieceType::Pawn:
+        return pawnAttackMask(board);
+    case PieceType::Knight:
+        return knightAttackMask(board);
+    case PieceType::Bishop:
+        return bishopAttackMask(board);
+    case PieceType::Rook:
+        return rookAttackMask(board);
+    case PieceType::Queen:
+        return queenAttackMask(board);
+    case PieceType::King:
+        return kingAttackMask(board);
+    default:
+        return 0;
+    }
+}
+
+std::uint64_t Piece::pawnAttackMask(const Board &board) const
+{
+    std::uint64_t res = 0;
+
+    char direction = (body.color == Color::Black)? 7 : 0;
+    
+    if(pos.safeToAdd(1, direction))
+    {
+        res |= pos.add(1, direction).boardMask();
+    }
+    if(pos.safeToAdd(-1, direction))
+    {
+        res |= pos.add(1, direction).boardMask();
+    }
+
+    return res;
+}
+
+std::uint64_t Piece::knightAttackMask(const Board &board) const
+{
+    std::uint64_t res = 0;
+
+    for(Position dp : {
+        Position(1, 2),
+        Position(1, -2),
+        Position(-1, 2),
+        Position(-1, -2),
+        Position(2, 1),
+        Position(2, -1),
+        Position(-2, 1),
+        Position(-2, -1)
+    })
+    {
+        if(pos.safeToAdd(dp))
+        {
+            res |= pos.add(dp).boardMask();
+        }
+    }
+
+    return res;
+}
+
+std::uint64_t Piece::bishopAttackMask(const Board &board) const
+{
+    std::uint64_t res = 0;
+
+    for(Position direction : {
+        Position(1, 1),
+        Position(1, -1),
+        Position(-1, 1),
+        Position(-1, -1)
+    })
+    {
+        Position dest = pos;
+        while(dest.safeToAdd(direction))
+        {
+            dest = dest.add(direction);
+            const Piece *target = board.getPieceByPos(dest);
+            if(target != nullptr && target->getColor() == body.color)
+            {
+                break;
+            }
+            else if(target != nullptr)
+            {
+                res |= dest.boardMask();
+                break;
+            }
+            else
+            {
+                res |= dest.boardMask();
+            }
+        }
+    }
+
+    return res;
+}
+
+std::uint64_t Piece::rookAttackMask(const Board &board) const
+{
+    std::uint64_t res = 0;
+
+    for(Position direction : {
+        Position(1, 0),
+        Position(-1, 0),
+        Position(0, 1),
+        Position(0, -1)
+    })
+    {
+        Position dest = pos;
+        while(dest.safeToAdd(direction))
+        {
+            dest = dest.add(direction);
+            const Piece *target = board.getPieceByPos(dest);
+            if(target != nullptr && target->getColor() == body.color)
+            {
+                break;
+            }
+            else if(target != nullptr)
+            {
+                res |= dest.boardMask();
+                break;
+            }
+            else
+            {
+                res |= dest.boardMask();
+            }
+        }
+    }
+
+    return res;
+}
+
+std::uint64_t Piece::queenAttackMask(const Board &board) const
+{
+    std::uint64_t res = 0;
+
+    for(Position direction : {
+        Position(1, 1),
+        Position(1, -1),
+        Position(-1, 1),
+        Position(-1, -1),
+        Position(1, 0),
+        Position(-1, 0),
+        Position(0, 1),
+        Position(0, -1)
+    })
+    {
+        Position dest = pos;
+        while(dest.safeToAdd(direction))
+        {
+            dest = dest.add(direction);
+            const Piece *target = board.getPieceByPos(dest);
+            if(target != nullptr && target->getColor() == body.color)
+            {
+                break;
+            }
+            else if(target != nullptr)
+            {
+                res |= dest.boardMask();
+                break;
+            }
+            else
+            {
+                res |= dest.boardMask();
+            }
+        }
+    }
+
+    return res;
+}
+
+std::uint64_t Piece::kingAttackMask(const Board &board) const
+{
+    std::uint64_t res = 0;
+
+    for(Position dp : {
+        Position(-1, -1),
+        Position(-1, 0),
+        Position(-1, 1),
+        Position(0, -1),
+        Position(0, 1),
+        Position(1, -1),
+        Position(1, 0),
+        Position(1, 1)
+    })
+    {
+        if(pos.safeToAdd(dp))
+        {
+            res |= pos.add(dp).boardMask();
+        }
+    }
+
+    return res;
 }

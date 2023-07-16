@@ -17,7 +17,18 @@ int main()
     std::cout << "Board: " << sizeof(Board) << " byte(s)" << std::endl;
 
     Board board = Board::startingBoard();
-    std::cout << std::endl << std::endl << board.getDislayString() << std::endl;
+    std::cout << std::endl << board.getDislayString() << std::endl;
+
+    std::string notation;
+
+    std::cin >> notation;
+    while (notation != "q")
+    {
+        Move move = Move::FromNotation(notation, board);
+        board = board.doMove(move);
+        std::cout << std::endl << board.getDislayString() << std::endl;
+        std::cin >> notation;
+    }
 
     return 0;
 }

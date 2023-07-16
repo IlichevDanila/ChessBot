@@ -28,6 +28,14 @@ struct PieceBody
 
     inline operator unsigned char() const { return (moved << 5) | (color << 3) | type; }
     std::uint8_t Hash() const { return (moved << 5) | (color << 3) | type; }
+
+    inline PieceBody &operator=(const PieceBody &rhs)
+    {
+        moved = rhs.moved;
+        color = rhs.color;
+        type = rhs.type;
+        return *this;
+    }
 };
 
 class Piece
@@ -42,6 +50,13 @@ private:
     MoveSet rookMoves(const Board &board) const;
     MoveSet queenMoves(const Board &board) const;
     MoveSet kingMoves(const Board &board) const;
+
+    std::uint64_t pawnAttackMask(const Board &board) const;
+    std::uint64_t knightAttackMask(const Board &board) const;
+    std::uint64_t bishopAttackMask(const Board &board) const;
+    std::uint64_t rookAttackMask(const Board &board) const;
+    std::uint64_t queenAttackMask(const Board &board) const;
+    std::uint64_t kingAttackMask(const Board &board) const;
 
 public:
     Piece() : body(), pos(0, 0) {}
@@ -76,12 +91,15 @@ public:
 
     MoveSet getPseudolegalMoves(const Board &board) const;
 
+    std::uint64_t getAttackedMask(const Board &board) const;
+
     inline bool wasMoved() const { return body.moved == 1; }
     inline void setMoved() { body.moved = 1; }
     inline void unsetMoved() { body.moved = 0; }
 
     friend PieceSet;
     friend Move;
+    friend Board;
 };
 
 class PieceSet

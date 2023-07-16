@@ -18,6 +18,10 @@ private:
     Piece *enPassPawn = nullptr;
 
 public:
+    Board();
+    Board(const Board &rhs);
+    ~Board();
+
     static Board startingBoard();
 
     inline Color currentColor() const { return playerColor; }

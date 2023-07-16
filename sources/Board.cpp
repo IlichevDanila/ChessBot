@@ -1,9 +1,49 @@
 #include <stdexcept>
+#include <iostream>
 
 #include "Position.hpp"
 #include "Piece.hpp"
 #include "Move.hpp"
 #include "Board.hpp"
+
+Board::Board()
+{}
+
+Board::Board(const Board &rhs)
+    : playerColor(rhs.playerColor)
+    , whitePieces(rhs.whitePieces)
+    , blackPieces(rhs.blackPieces)
+    , enPassPawn(rhs.enPassPawn)
+{
+    if(enPassPawn != nullptr)
+    {
+        if(enPassPawn->getColor() == Color::White)
+        {
+            for(Piece &p : whitePieces)
+            {
+                if(p == *enPassPawn)
+                {
+                    enPassPawn = &p;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            for(Piece &p : blackPieces)
+            {
+                if(p == *enPassPawn)
+                {
+                    enPassPawn = &p;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+Board::~Board()
+{}
 
 Board Board::startingBoard()
 {
@@ -281,4 +321,135 @@ bool Board::checkIfMoveLegal(const Move &move) const
     }
 
     return true;
+}
+
+std::uint64_t Board::getAttackedMask(Color color) const
+{
+    std::uint64_t res = 0;
+
+    if(color == Color::White)
+    {
+        for(const Piece &p : whitePieces)
+        {
+            res |= p.getAttackedMask(*this);
+        }
+    }
+    else
+    {
+        for(const Piece &p : blackPieces)
+        {
+            res |= p.getAttackedMask(*this);
+        }
+    }
+
+    return res;
+}
+
+Board Board::doMove(const Move &move) const
+{
+    Board future(*this);
+
+    //Short castle
+    if(move.castle == Move::CastleType::Short)
+    {
+        if(playerColor == Color::White)
+        {
+            Piece *king = future.getPieceByPos(Position(4, 0));
+            Piece *rook = future.getPieceByPos(Position(0, 0));
+            king->pos = Position(2, 0);
+            rook->pos = Position(3, 0);
+            king->setMoved();
+            rook->setMoved();
+            future.playerColor = Color::Black;
+        }
+        else
+        {
+            Piece *king = future.getPieceByPos(Position(4, 7));
+            Piece *rook = future.getPieceByPos(Position(0, 7));
+            king->pos = Position(2, 0);
+            rook->pos = Position(3, 0);
+            king->setMoved();
+            rook->setMoved();
+            future.playerColor = Color::White;
+        }
+        future.enPassPawn = nullptr;
+        return future;
+    }
+
+    //Long castle
+    if(move.castle == Move::CastleType::Long)
+    {
+        if(playerColor == Color::White)
+        {
+            Piece *king = future.getPieceByPos(Position(4, 0));
+            Piece *rook = future.getPieceByPos(Position(7, 0));
+            king->pos = Position(6, 7);
+            rook->pos = Position(5, 7);
+            king->setMoved();
+            rook->setMoved();
+            future.playerColor = Color::Black;
+        }
+        else
+        {
+            Piece *king = future.getPieceByPos(Position(4, 7));
+            Piece *rook = future.getPieceByPos(Position(7, 7));
+            king->pos = Position(6, 7);
+            rook->pos = Position(5, 7);
+            king->setMoved();
+            rook->setMoved();
+            future.playerColor = Color::White;
+        }
+        future.enPassPawn = nullptr;
+        return future;
+    }
+
+    //Move the piece
+    Piece *movingPiece = future.getPieceByPos(move.from);
+    movingPiece->pos = move.to;
+    movingPiece->setMoved();
+
+    //Capture the piece
+    Piece *target = future.getPieceByPos(move.to);
+    if(target != nullptr)
+    {
+        if(target->getColor() == Color::White)
+        {
+            future.whitePieces.erase(target);
+        }
+        else
+        {
+            future.blackPieces.erase(target);
+        }
+    }
+
+    //En Passant
+    if(move.enPass != nullptr)
+    {
+        if(playerColor == Color::White)
+        {
+            future.blackPieces.erase(future.enPassPawn);
+        }
+        else
+        {
+            future.whitePieces.erase(future.enPassPawn);
+        }
+    }
+
+    future.enPassPawn = nullptr;
+    if(movingPiece->body.type == PieceType::Pawn &&
+        (move.to.getRank() - move.from.getRank() == 2 || move.to.getRank() - move.from.getRank() == -2)
+    )
+    {
+        future.enPassPawn = movingPiece;
+    }
+
+    //Promotion
+    if(move.promotion != PieceBody())
+    {
+        movingPiece->body = move.promotion;
+    }
+
+    future.playerColor = future.playerColor == Color::White? Color::Black : Color::White;
+
+    return future;
 }
