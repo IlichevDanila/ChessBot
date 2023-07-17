@@ -24,9 +24,21 @@ int main()
     std::cin >> notation;
     while (notation != "q")
     {
-        Move move = Move::FromNotation(notation, board);
-        board = board.doMove(move);
-        std::cout << std::endl << board.getDislayString() << std::endl;
+        if(notation == "moves")
+        {
+            MoveSet legalMoves = board.getLegalMoves();
+            for(Move &mv: legalMoves)
+            {
+                std::cout << mv.ToNotation() << std::endl;
+            }
+        }
+        else
+        {
+            Move move = Move::FromNotation(notation, board);
+            board = board.doMove(move);
+            std::cout << std::endl << board.getDislayString() << std::endl;
+        }
+
         std::cin >> notation;
     }
 

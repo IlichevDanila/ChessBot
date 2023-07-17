@@ -53,6 +53,8 @@ public:
 
     static Move FromNotation(const std::string &notation, const Board &board);
 
+    std::string ToNotation() const;
+
     inline static Move FromHash(std::uint32_t hash)
     {
         return Move(

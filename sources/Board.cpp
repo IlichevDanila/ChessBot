@@ -453,3 +453,25 @@ Board Board::doMove(const Move &move) const
 
     return future;
 }
+
+MoveSet Board::getLegalMoves() const
+{
+    MoveSet result, chunk;
+    if(playerColor == Color::White)
+    {
+        for(const Piece &p : whitePieces)
+        {
+            chunk = p.getPseudolegalMoves(*this);
+            result.insert(result.end(), chunk.begin(), chunk.end());
+        }
+    }
+    else
+    {
+        for(const Piece &p : blackPieces)
+        {
+            chunk = p.getPseudolegalMoves(*this);
+            result.insert(result.end(), chunk.begin(), chunk.end());
+        }
+    }
+    return result;
+}

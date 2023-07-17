@@ -54,3 +54,22 @@ Move Move::FromNotation(const std::string &notation, const Board &board)
 
 Move::~Move()
 {}
+
+std::string Move::ToNotation() const
+{
+    if(castle == CastleType::Long)
+    {
+        return "O-O-O";
+    }
+    if(castle == CastleType::Short)
+    {
+        return "O-O";
+    }
+    std::string res = from.to_string() + "-" + to.to_string();
+    if(promotion != PieceBody())
+    {
+        static const char promTypeChars[] = {'.', 'p', 'n', 'b', 'r', 'q', 'k'};
+        res += promTypeChars[promotion.type];
+    }
+    return res;
+}
