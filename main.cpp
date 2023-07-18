@@ -32,6 +32,12 @@ int main()
                 std::cout << mv.ToNotation() << std::endl;
             }
         }
+        else if(notation == "perft")
+        {
+            unsigned int depth;
+            std::cin >> depth;
+            std::cout << board.perft(depth) << std::endl;
+        }
         else
         {
             Move move = Move::FromNotation(notation, board);

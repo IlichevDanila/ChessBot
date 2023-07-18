@@ -46,6 +46,8 @@ public:
     Board doMove(const Move &move) const;
 
     std::string getDislayString() const;
+
+    unsigned long long perft(unsigned int depth = 1) const;
 };
 
 #endif

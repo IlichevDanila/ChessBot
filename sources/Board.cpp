@@ -486,3 +486,21 @@ MoveSet Board::getLegalMoves() const
     }
     return result;
 }
+
+unsigned long long Board::perft(unsigned int depth) const
+{
+    if(depth == 0)
+    {
+        return 1;
+    }
+
+    unsigned long long res = 0;
+
+    MoveSet moves = getLegalMoves();
+    for(Move &mv : moves)
+    {
+        res += doMove(mv).perft(depth - 1);
+    }
+
+    return res;
+}
