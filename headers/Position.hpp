@@ -6,8 +6,9 @@
 class Position
 {
 private:
-    unsigned char file : 3;
-    unsigned char rank : 3;
+    //unsigned char file : 3;
+    //unsigned char rank : 3;
+    char file, rank;
 
 public:
     Position(const std::string &notation)
@@ -18,8 +19,12 @@ public:
         : file(ch & 0x7), rank((ch >> 3) & 0x7)
     {}
 
-    Position(unsigned char file_, unsigned char rank_)
+    /*Position(unsigned char file_, unsigned char rank_)
         : file(file_ & 0x7), rank(rank_ & 0x7)
+    {}*/
+
+    Position(char file_, char rank_)
+        : file(file_), rank(rank_)
     {}
 
     Position(const Position &rhs)

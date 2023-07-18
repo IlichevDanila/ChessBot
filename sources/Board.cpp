@@ -1,5 +1,4 @@
 #include <stdexcept>
-#include <iostream>
 
 #include "Position.hpp"
 #include "Piece.hpp"
@@ -405,11 +404,11 @@ Board Board::doMove(const Move &move) const
 
     //Move the piece
     Piece *movingPiece = future.getPieceByPos(move.from);
+    Piece *target = future.getPieceByPos(move.to);
     movingPiece->pos = move.to;
     movingPiece->setMoved();
 
     //Capture the piece
-    Piece *target = future.getPieceByPos(move.to);
     if(target != nullptr)
     {
         if(target->getColor() == Color::White)
@@ -423,7 +422,7 @@ Board Board::doMove(const Move &move) const
     }
 
     //En Passant
-    if(move.enPass != nullptr)
+    if(move.enPass)
     {
         if(playerColor == Color::White)
         {
@@ -462,7 +461,13 @@ MoveSet Board::getLegalMoves() const
         for(const Piece &p : whitePieces)
         {
             chunk = p.getPseudolegalMoves(*this);
-            result.insert(result.end(), chunk.begin(), chunk.end());
+            for(Move &mv: chunk)
+            {
+                if(checkIfMoveLegal(mv))
+                {
+                    result.push_back(mv);
+                }
+            }
         }
     }
     else
@@ -470,7 +475,13 @@ MoveSet Board::getLegalMoves() const
         for(const Piece &p : blackPieces)
         {
             chunk = p.getPseudolegalMoves(*this);
-            result.insert(result.end(), chunk.begin(), chunk.end());
+            for(Move &mv: chunk)
+            {
+                if(checkIfMoveLegal(mv))
+                {
+                    result.push_back(mv);
+                }
+            }
         }
     }
     return result;

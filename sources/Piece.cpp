@@ -100,7 +100,7 @@ MoveSet Piece::pawnMoves(const Board &board) const
     MoveSet result;
 
     char promotionRank = (body.color == Color::Black)? 7 : 0;
-    char direction = (body.color == Color::Black)? 7 : 0;
+    char direction = (body.color == Color::Black)? -1 : 1;
 
     //Forward movement
     Position dest = pos.add(0, direction);
@@ -161,7 +161,7 @@ MoveSet Piece::pawnMoves(const Board &board) const
     //En passant (or however it called idk)
     else if(enPass != nullptr && enPass->getPos() == pos.add(1, 0) && enPass->getColor() != body.color)
     {
-        result.push_back(Move::EnPassant(*this, dest, enPass));
+        result.push_back(Move::EnPassant(*this, dest));
     }
 
     dest = pos.add(-1, direction);
@@ -188,7 +188,7 @@ MoveSet Piece::pawnMoves(const Board &board) const
     //En passant (or however it called idk)
     else if(enPass != nullptr && enPass->getPos() == pos.add(-1, 0) && enPass->getColor() != body.color)
     {
-        result.push_back(Move::EnPassant(*this, dest, enPass));
+        result.push_back(Move::EnPassant(*this, dest));
     }
 
     return result;
@@ -272,7 +272,6 @@ MoveSet Piece::rookMoves(const Board &board) const
         Position dest = pos;
         while(dest.safeToAdd(direction))
         {
-            dest = dest.add(direction);
             const Piece *target = board.getPieceByPos(dest);
             if(target != nullptr && target->getColor() == body.color)
             {

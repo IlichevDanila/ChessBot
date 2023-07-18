@@ -14,11 +14,11 @@ private:
     Position from, to;
     PieceBody promotion;
     CastleType castle;
-    const Piece *enPass;
+    bool enPass;
 
     Move(Position from_, Position to_,
         Color color_, PieceBody promotion_,
-        CastleType castle_, const Piece *enPass_ = nullptr)
+        CastleType castle_, bool enPass_ = false)
         : from(from_), to(to_)
         , color(color_), promotion(promotion_)
         , castle(castle_), enPass(enPass_)
@@ -101,12 +101,12 @@ public:
         );
     }
 
-    inline static Move EnPassant(Piece piece, Position dest, const Piece *enPassPawn)
+    inline static Move EnPassant(Piece piece, Position dest)
     {
         return Move(
             piece.pos, dest,
             static_cast<Color>(piece.body.color),
-            PieceBody(), CastleType::None, enPassPawn
+            PieceBody(), CastleType::None, true
         );
     }
 
