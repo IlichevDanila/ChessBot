@@ -105,7 +105,7 @@ public:
 class PieceSet
 {
 private:
-    char size = 0;
+    char size = 0;        //Pieces count (besides king piece)
     Piece pieces[16];
 
 public:
@@ -122,6 +122,9 @@ public:
     const Piece *find(Position pos) const;
 
     void erase(Piece *piece);
+
+    Piece *getKing();
+    const Piece *getKing() const;
 };
 
 #endif

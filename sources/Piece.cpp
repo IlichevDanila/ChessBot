@@ -4,15 +4,20 @@
 
 Piece *PieceSet::find(Piece piece)
 {
+    if(piece.getType() == PieceType::King)
+    {
+        return getKing();
+    }
+
     if(size == 0)
         return nullptr;
 
     //TODO: binary search
     for(int i = 0; i < size; ++i)
     {
-        if(pieces[i] == piece)
+        if(pieces[i + 1] == piece)
         {
-            return &pieces[i];
+            return &pieces[i + 1];
         }
     }
 
@@ -21,15 +26,20 @@ Piece *PieceSet::find(Piece piece)
 
 const Piece *PieceSet::find(Piece piece) const
 {
+    if(piece.getType() == PieceType::King)
+    {
+        return getKing();
+    }
+    
     if(size == 0)
         return nullptr;
 
     //TODO: binary search
     for(int i = 0; i < size; ++i)
     {
-        if(pieces[i] == piece)
+        if(pieces[i + 1] == piece)
         {
-            return &pieces[i];
+            return &pieces[i + 1];
         }
     }
 
@@ -41,7 +51,6 @@ Piece *PieceSet::find(Position pos)
     if(size == 0)
         return nullptr;
 
-    //TODO: binary search
     for(int i = 0; i < size; ++i)
     {
         if(pieces[i].pos == pos)
@@ -58,7 +67,6 @@ const Piece *PieceSet::find(Position pos) const
     if(size == 0)
         return nullptr;
 
-    //TODO: binary search
     for(int i = 0; i < size; ++i)
     {
         if(pieces[i].pos == pos)
@@ -72,26 +80,37 @@ const Piece *PieceSet::find(Position pos) const
 
 void PieceSet::push_back(Piece piece)
 {
+    if(piece.getType() == PieceType::King)
+    {
+        pieces[0] = piece;
+        return;
+    }
+
     //TODO: Do i need check?
     if(find(piece.pos) != nullptr)
         return;
 
-    if(size == 16)
+    if(size == 15)
         return;
 
     //TODO: sorted insertion
-    pieces[size] = piece;
+    pieces[size + 1] = piece;
     ++size;
 }
 
 void PieceSet::erase(Piece *piece)
 {
     //TODO: do i need check?
-    if(piece < pieces || piece >= (pieces + size))
+    if(piece < pieces || piece >= (pieces + size + 1))
         return;
 
+    if(piece->getType() == PieceType::King)
+    {
+        throw std::runtime_error("Trying to erase king piece from set");
+    }
+
     //TODO: sorted erase
-    *piece = *(pieces + (size - 1));
+    *piece = *(pieces + size);
     --size;
 }
 
@@ -629,4 +648,14 @@ std::uint64_t Piece::kingAttackMask(const Board &board) const
     }
 
     return res;
+}
+
+Piece *PieceSet::getKing()
+{
+    return &pieces[0];
+}
+
+const Piece *PieceSet::getKing() const
+{
+    return &pieces[0];
 }

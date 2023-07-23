@@ -47,6 +47,11 @@ public:
     bool checkIfMovePseudolegal(const Move &move) const;
     bool checkIfMoveLegal(const Move &move, Board *future = nullptr) const;
 
+    bool ifCheck() const;
+    bool ifMate() const;
+    bool ifCheck(Color color) const;
+    bool ifMate(Color color) const;
+
     std::uint64_t getAttackedMask(Color color) const;
 
     Board doMove(const Move &move) const;
@@ -57,7 +62,8 @@ public:
     unsigned long long perft(unsigned int depth = 1) const;
     unsigned long long slow_perft(unsigned int depth = 1) const;
 
-    double evaluate(Color color, unsigned int depth = 0) const;
+    double simple_evaluation(Color color) const;
+    double deep_evaluation(Color color, unsigned int depth = 0) const;
 
     Move bestMove(unsigned int depth = 0) const;
 };

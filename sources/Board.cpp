@@ -282,41 +282,7 @@ bool Board::checkIfMoveLegal(const Move &move, Board *ftr) const
         *ftr = future;
     }
 
-    Piece *king = nullptr;
-    if(move.color == Color::White)
-    {
-        for(Piece &p : future.whitePieces)
-        {
-            if(p.getType() == PieceType::King)
-            {
-                king = &p;
-                break;
-            }
-        }
-    }
-    else
-    {
-        for(Piece &p : future.blackPieces)
-        {
-            if(p.getType() == PieceType::King)
-            {
-                king = &p;
-                break;
-            }
-        }
-    }
-
-    if(king == nullptr)
-    {
-        throw std::runtime_error("King does not exist. Why?");
-    }
-
-    if((future.getAttackedMask(future.playerColor) & king->getPos().boardMask()) != 0)
-    {
-        return false;
-    }
-
-    return true;
+    return !future.ifCheck(playerColor);
 }
 
 std::uint64_t Board::getAttackedMask(Color color) const
@@ -351,9 +317,9 @@ Board Board::doMove(const Move &move) const
         if(playerColor == Color::White)
         {
             Piece *king = future.getPieceByPos(Position(4, 0));
-            Piece *rook = future.getPieceByPos(Position(0, 0));
-            king->pos = Position(2, 0);
-            rook->pos = Position(3, 0);
+            Piece *rook = future.getPieceByPos(Position(7, 0));
+            king->pos = Position(6, 0);
+            rook->pos = Position(5, 0);
             king->setMoved();
             rook->setMoved();
             future.playerColor = Color::Black;
@@ -361,9 +327,9 @@ Board Board::doMove(const Move &move) const
         else
         {
             Piece *king = future.getPieceByPos(Position(4, 7));
-            Piece *rook = future.getPieceByPos(Position(0, 7));
-            king->pos = Position(2, 0);
-            rook->pos = Position(3, 0);
+            Piece *rook = future.getPieceByPos(Position(7, 7));
+            king->pos = Position(6, 7);
+            rook->pos = Position(5, 7);
             king->setMoved();
             rook->setMoved();
             future.playerColor = Color::White;
@@ -378,9 +344,9 @@ Board Board::doMove(const Move &move) const
         if(playerColor == Color::White)
         {
             Piece *king = future.getPieceByPos(Position(4, 0));
-            Piece *rook = future.getPieceByPos(Position(7, 0));
-            king->pos = Position(6, 7);
-            rook->pos = Position(5, 7);
+            Piece *rook = future.getPieceByPos(Position(0, 0));
+            king->pos = Position(2, 0);
+            rook->pos = Position(3, 0);
             king->setMoved();
             rook->setMoved();
             future.playerColor = Color::Black;
@@ -388,9 +354,9 @@ Board Board::doMove(const Move &move) const
         else
         {
             Piece *king = future.getPieceByPos(Position(4, 7));
-            Piece *rook = future.getPieceByPos(Position(7, 7));
-            king->pos = Position(6, 7);
-            rook->pos = Position(5, 7);
+            Piece *rook = future.getPieceByPos(Position(0, 7));
+            king->pos = Position(2, 7);
+            rook->pos = Position(3, 7);
             king->setMoved();
             rook->setMoved();
             future.playerColor = Color::White;
@@ -524,28 +490,16 @@ std::string Board::getFENString() const
     return std::string();
 }
 
-double Board::evaluate(Color color, unsigned int depth) const
+double Board::simple_evaluation(Color color) const
 {
-    double res = 0.0;
+    constexpr double checkValue = 200.0;
+    constexpr double pawnValue = 100.0;
+    constexpr double knightValue = 300.0;
+    constexpr double bishopValue = 300.0;
+    constexpr double rookValue = 500.0;
+    constexpr double queenValue = 900.0;
 
-    if(depth > 0)
-    {
-        double bestEval = -1000000000.0;
-        double eval;
-        for(auto &future: getFutures())
-        {
-            if(
-                (eval = -future.second.evaluate(
-                                        color == Color::White? Color::Black : Color::White,
-                                        depth - 1)
-                ) > bestEval
-            )
-            {
-                bestEval = eval;
-            }
-        }
-        return bestEval;
-    }
+    double res = 0.0;
 
     //Own pieces
     for(const Piece &p: color == Color::White? whitePieces : blackPieces)
@@ -553,19 +507,19 @@ double Board::evaluate(Color color, unsigned int depth) const
         switch(p.getType())
         {
         case PieceType::Pawn:
-            res += 100.0;
+            res += pawnValue;
             break;
         case PieceType::Knight:
-            res += 300.0;
+            res += knightValue;
             break;
         case PieceType::Bishop:
-            res += 300.0;
+            res += bishopValue;
             break;
         case PieceType::Rook:
-            res += 500.0;
+            res += rookValue;
             break;
         case PieceType::Queen:
-            res += 900.0;
+            res += queenValue;
             break;
         default:
             break;
@@ -578,26 +532,62 @@ double Board::evaluate(Color color, unsigned int depth) const
         switch(p.getType())
         {
         case PieceType::Pawn:
-            res -= 100.0;
+            res -= pawnValue;
             break;
         case PieceType::Knight:
-            res -= 300.0;
+            res -= knightValue;
             break;
         case PieceType::Bishop:
-            res -= 300.0;
+            res -= bishopValue;
             break;
         case PieceType::Rook:
-            res -= 500.0;
+            res -= rookValue;
             break;
         case PieceType::Queen:
-            res -= 900.0;
+            res -= queenValue;
             break;
         default:
             break;
         }
     }
 
+    //Own king is undr check
+    if(ifCheck(color))
+    {
+        res -= checkValue;
+    }
+
+    //Enemy's king is under check
+    if(ifCheck(oppositeColor(color)))
+    {
+        res -= checkValue;
+    }
+
     return res;
+}
+
+double Board::deep_evaluation(Color color, unsigned int depth) const
+{
+    if(depth == 0)
+    {
+        return simple_evaluation(color);
+    }
+
+    double bestEval = -1000000000.0;
+    double eval;
+    for(auto &future: getFutures())
+    {
+        if(
+            (eval = -future.second.deep_evaluation(
+                                    color == Color::White? Color::Black : Color::White,
+                                    depth - 1)
+            ) > bestEval
+        )
+        {
+            bestEval = eval;
+        }
+    }
+    return bestEval;
 }
 
 Move Board::bestMove(unsigned int depth) const
@@ -607,11 +597,25 @@ Move Board::bestMove(unsigned int depth) const
     double eval;
     for(auto &future: getFutures())
     {
-        if((eval = future.second.evaluate(playerColor, depth)) > bestEval)
+        if((eval = future.second.deep_evaluation(playerColor, depth)) > bestEval)
         {
             best = future.first;
             bestEval = eval;
         }
     }
     return best;
+}
+
+bool Board::ifCheck() const
+{
+    const Piece *king = (playerColor == Color::White? whitePieces : blackPieces).getKing();
+    std::uint64_t attack = getAttackedMask(playerColor == Color::White? Color::Black : Color::White);
+    return (attack & king->getPos().boardMask()) != 0;
+}
+
+bool Board::ifCheck(Color color) const
+{
+    const Piece *king = (color == Color::White? whitePieces : blackPieces).getKing();
+    std::uint64_t attack = getAttackedMask(color == Color::White? Color::Black : Color::White);
+    return (attack & king->getPos().boardMask()) != 0;
 }

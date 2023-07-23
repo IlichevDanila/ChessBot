@@ -25,6 +25,11 @@ enum Color : std::uint8_t
     White = 1
 };
 
+inline Color oppositeColor(Color color)
+{
+    return color == Color::White? Color::Black : Color::White;
+}
+
 class Piece;
 class PieceSet;
 
