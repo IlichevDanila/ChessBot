@@ -16,4 +16,5 @@ objs/%.o: sources/%.cpp headers/%.hpp
 
 clear:
 	rm -f test
+	rm -f main.o
 	cd objs; rm -f *.o

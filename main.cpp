@@ -5,6 +5,7 @@
 #include "Piece.hpp"
 #include "Move.hpp"
 #include "Board.hpp"
+#include "Searcher.hpp"
 
 int main()
 {
@@ -40,7 +41,8 @@ int main()
         }
         else if(notation == "play")
         {
-            Move move = board.bestMove(3);
+            Searcher searcher;
+            Move move = searcher.getBestMove(board, board.currentColor(), 3);
             board = board.doMove(move);
             std::cout << move.ToNotation() << std::endl;
             std::cout << std::endl << board.getDislayString() << std::endl;

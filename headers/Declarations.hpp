@@ -43,4 +43,6 @@ using Future = std::pair<Move, Board>;
 #define make_future(x, y) std::make_pair(x, y)
 using FuturesSet = std::map<Move, Board>;
 
+class Searcher;
+
 #endif

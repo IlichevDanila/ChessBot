@@ -37,6 +37,7 @@ Board &Board::operator=(const Board &rhs)
     whitePieces = rhs.whitePieces;
     blackPieces = rhs.blackPieces;
     enPassPawn = rhs.enPassPawn;
+    return *this;
 }
 
 /*Board &Board::operator=(Board &&rhs)
@@ -488,122 +489,6 @@ std::string Board::getFENString() const
 
     }*/
     return std::string();
-}
-
-double Board::simple_evaluation(Color color) const
-{
-    constexpr double checkValue = 200.0;
-    constexpr double pawnValue = 100.0;
-    constexpr double knightValue = 300.0;
-    constexpr double bishopValue = 300.0;
-    constexpr double rookValue = 500.0;
-    constexpr double queenValue = 900.0;
-
-    double res = 0.0;
-
-    //Own pieces
-    for(const Piece &p: color == Color::White? whitePieces : blackPieces)
-    {
-        switch(p.getType())
-        {
-        case PieceType::Pawn:
-            res += pawnValue;
-            break;
-        case PieceType::Knight:
-            res += knightValue;
-            break;
-        case PieceType::Bishop:
-            res += bishopValue;
-            break;
-        case PieceType::Rook:
-            res += rookValue;
-            break;
-        case PieceType::Queen:
-            res += queenValue;
-            break;
-        default:
-            break;
-        }
-    }
-
-    //Enemy pieces
-    for(const Piece &p: color == Color::White? blackPieces : whitePieces)
-    {
-        switch(p.getType())
-        {
-        case PieceType::Pawn:
-            res -= pawnValue;
-            break;
-        case PieceType::Knight:
-            res -= knightValue;
-            break;
-        case PieceType::Bishop:
-            res -= bishopValue;
-            break;
-        case PieceType::Rook:
-            res -= rookValue;
-            break;
-        case PieceType::Queen:
-            res -= queenValue;
-            break;
-        default:
-            break;
-        }
-    }
-
-    //Own king is undr check
-    if(ifCheck(color))
-    {
-        res -= checkValue;
-    }
-
-    //Enemy's king is under check
-    if(ifCheck(oppositeColor(color)))
-    {
-        res -= checkValue;
-    }
-
-    return res;
-}
-
-double Board::deep_evaluation(Color color, unsigned int depth) const
-{
-    if(depth == 0)
-    {
-        return simple_evaluation(color);
-    }
-
-    double bestEval = -1000000000.0;
-    double eval;
-    for(auto &future: getFutures())
-    {
-        if(
-            (eval = -future.second.deep_evaluation(
-                                    color == Color::White? Color::Black : Color::White,
-                                    depth - 1)
-            ) > bestEval
-        )
-        {
-            bestEval = eval;
-        }
-    }
-    return bestEval;
-}
-
-Move Board::bestMove(unsigned int depth) const
-{
-    Move best;
-    double bestEval = -100000000.0;
-    double eval;
-    for(auto &future: getFutures())
-    {
-        if((eval = future.second.deep_evaluation(playerColor, depth)) > bestEval)
-        {
-            best = future.first;
-            bestEval = eval;
-        }
-    }
-    return best;
 }
 
 bool Board::ifCheck() const

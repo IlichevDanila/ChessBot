@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "Declarations.hpp"
+#include "Piece.hpp"
 
 
 class Board
@@ -62,10 +63,7 @@ public:
     unsigned long long perft(unsigned int depth = 1) const;
     unsigned long long slow_perft(unsigned int depth = 1) const;
 
-    double simple_evaluation(Color color) const;
-    double deep_evaluation(Color color, unsigned int depth = 0) const;
-
-    Move bestMove(unsigned int depth = 0) const;
+    friend class Searcher;
 };
 
 #endif
