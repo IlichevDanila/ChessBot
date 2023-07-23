@@ -49,9 +49,9 @@ Move Move::FromNotation(const std::string &notation, const Board &board)
         return Promotion(*piece, dest, promType);
     }
 
-    if(board.getEnPassPawn() != nullptr &&
-        (board.getEnPassPawn()->getPos() == piece->getPos().add(-1, 0) || board.getEnPassPawn()->getPos() == piece->getPos().add(1, 0)) &&
-        board.getEnPassPawn()->getColor() != piece->getColor())
+    if(board.getEnPassPawn() != Piece() &&
+        (board.getEnPassPawn().getPos() == piece->getPos().add(-1, 0) || board.getEnPassPawn().getPos() == piece->getPos().add(1, 0)) &&
+        board.getEnPassPawn().getColor() != piece->getColor())
     {
         return Move::EnPassant(*piece, dest);
     }

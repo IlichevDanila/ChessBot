@@ -41,14 +41,24 @@ public:
 
     ~Move();
 
-    inline bool operator==(const Move &rhs)
+    inline bool operator==(const Move &rhs) const
     {
         return Hash() == rhs.Hash();
     }
 
-    inline bool operator!=(const Move &rhs)
+    inline bool operator!=(const Move &rhs) const
     {
         return Hash() == rhs.Hash();
+    }
+
+    inline bool operator>(const Move &rhs) const
+    {
+        return Hash() > rhs.Hash();
+    }
+
+    inline bool operator<(const Move &rhs) const
+    {
+        return Hash() < rhs.Hash();
     }
 
     static Move FromNotation(const std::string &notation, const Board &board);

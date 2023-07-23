@@ -36,13 +36,28 @@ int main()
         {
             unsigned int depth;
             std::cin >> depth;
-            std::cout << board.perft(depth) << std::endl;
+            std::cout << board.slow_perft(depth) << std::endl;
+        }
+        else if(notation == "play")
+        {
+            Move move = board.bestMove(3);
+            board = board.doMove(move);
+            std::cout << move.ToNotation() << std::endl;
+            std::cout << std::endl << board.getDislayString() << std::endl;
         }
         else
         {
             Move move = Move::FromNotation(notation, board);
-            board = board.doMove(move);
-            std::cout << std::endl << board.getDislayString() << std::endl;
+            if(board.checkIfMovePseudolegal(move) && board.checkIfMoveLegal(move))
+            {
+                std::cout << "Legal move" << std::endl;
+                board = board.doMove(move);
+                std::cout << std::endl << board.getDislayString() << std::endl;
+            }
+            else
+            {
+                std::cout << "Illegal move" << std::endl;
+            }
         }
 
         std::cin >> notation;

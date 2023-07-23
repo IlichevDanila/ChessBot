@@ -3,6 +3,8 @@
 
 #include <cstdint>
 #include <list>
+#include <map>
+#include <utility>
 
 class Position;
 
@@ -31,5 +33,9 @@ class Move;
 using MoveSet = std::list<Move>;
 
 class Board;
+
+using Future = std::pair<Move, Board>;
+#define make_future(x, y) std::make_pair(x, y)
+using FuturesSet = std::map<Move, Board>;
 
 #endif

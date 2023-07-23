@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <iostream>
 
 #include "Position.hpp"
 #include "Piece.hpp"
@@ -14,35 +15,39 @@ Board::Board(const Board &rhs)
     , blackPieces(rhs.blackPieces)
     , enPassPawn(rhs.enPassPawn)
 {
-    if(enPassPawn != nullptr)
-    {
-        if(enPassPawn->getColor() == Color::White)
-        {
-            for(Piece &p : whitePieces)
-            {
-                if(p == *enPassPawn)
-                {
-                    enPassPawn = &p;
-                    break;
-                }
-            }
-        }
-        else
-        {
-            for(Piece &p : blackPieces)
-            {
-                if(p == *enPassPawn)
-                {
-                    enPassPawn = &p;
-                    break;
-                }
-            }
-        }
-    }
+    
+}
+
+Board::Board(Board &&rhs)
+    : playerColor(rhs.playerColor)
+    , whitePieces(std::move(rhs.whitePieces))
+    , blackPieces(std::move(rhs.blackPieces))
+    , enPassPawn(rhs.enPassPawn)
+{
+    rhs.playerColor = Color::Black;
+    rhs.enPassPawn = Piece();
 }
 
 Board::~Board()
 {}
+
+Board &Board::operator=(const Board &rhs)
+{
+    playerColor = rhs.playerColor;
+    whitePieces = rhs.whitePieces;
+    blackPieces = rhs.blackPieces;
+    enPassPawn = rhs.enPassPawn;
+}
+
+/*Board &Board::operator=(Board &&rhs)
+{
+    playerColor = rhs.playerColor;
+    whitePieces = std::move(rhs.whitePieces);
+    blackPieces = std::move(rhs.blackPieces);
+    enPassPawn = rhs.enPassPawn;
+    rhs.playerColor = Color::Black;
+    rhs.enPassPawn = Piece();
+}*/
 
 Board Board::startingBoard()
 {
@@ -229,24 +234,12 @@ MoveSet Board::getPseudolegalMoves() const
 
 MoveSet Board::getPseudolegalMoves(Color color) const
 {
-    MoveSet result, chunk;
-    if(color == Color::White)
+    MoveSet result;
+    for(const Piece &p : color == Color::White ? whitePieces : blackPieces)
     {
-        for(const Piece &p : whitePieces)
-        {
-            chunk = p.getPseudolegalMoves(*this);
-            result.insert(result.end(), chunk.begin(), chunk.end());
-        }    
+        MoveSet chunk = p.getPseudolegalMoves(*this);
+        result.insert(result.end(), chunk.begin(), chunk.end());
     }
-    else
-    {
-        for(const Piece &p : blackPieces)
-        {
-            chunk = p.getPseudolegalMoves(*this);
-            result.insert(result.end(), chunk.begin(), chunk.end());
-        }
-    }
-    
     return result;
 }
 
@@ -276,7 +269,7 @@ bool Board::checkIfMovePseudolegal(const Move &move) const
     return found;
 }
 
-bool Board::checkIfMoveLegal(const Move &move) const
+bool Board::checkIfMoveLegal(const Move &move, Board *ftr) const
 {
     /*if(!checkIfMovePseudolegal(move))
     {
@@ -284,6 +277,10 @@ bool Board::checkIfMoveLegal(const Move &move) const
     }*/
 
     Board future = doMove(move);
+    if(ftr != nullptr)
+    {
+        *ftr = future;
+    }
 
     Piece *king = nullptr;
     if(move.color == Color::White)
@@ -371,7 +368,7 @@ Board Board::doMove(const Move &move) const
             rook->setMoved();
             future.playerColor = Color::White;
         }
-        future.enPassPawn = nullptr;
+        future.enPassPawn = Piece();
         return future;
     }
 
@@ -398,7 +395,7 @@ Board Board::doMove(const Move &move) const
             rook->setMoved();
             future.playerColor = Color::White;
         }
-        future.enPassPawn = nullptr;
+        future.enPassPawn = Piece();
         return future;
     }
 
@@ -426,20 +423,20 @@ Board Board::doMove(const Move &move) const
     {
         if(playerColor == Color::White)
         {
-            future.blackPieces.erase(future.enPassPawn);
+            future.blackPieces.erase(future.blackPieces.find(future.enPassPawn));
         }
         else
         {
-            future.whitePieces.erase(future.enPassPawn);
+            future.whitePieces.erase(future.whitePieces.find(future.enPassPawn));
         }
     }
 
-    future.enPassPawn = nullptr;
+    future.enPassPawn = Piece();
     if(movingPiece->body.type == PieceType::Pawn &&
         (move.to.getRank() - move.from.getRank() == 2 || move.to.getRank() - move.from.getRank() == -2)
     )
     {
-        future.enPassPawn = movingPiece;
+        future.enPassPawn = *movingPiece;
     }
 
     //Promotion
@@ -456,32 +453,27 @@ Board Board::doMove(const Move &move) const
 MoveSet Board::getLegalMoves() const
 {
     MoveSet result, chunk;
-    if(playerColor == Color::White)
+    chunk = getPseudolegalMoves(playerColor);
+    for(Move &mv: chunk)
     {
-        for(const Piece &p : whitePieces)
+        if(checkIfMoveLegal(mv))
         {
-            chunk = p.getPseudolegalMoves(*this);
-            for(Move &mv: chunk)
-            {
-                if(checkIfMoveLegal(mv))
-                {
-                    result.push_back(mv);
-                }
-            }
+            result.push_back(mv);
         }
     }
-    else
+    return result;
+}
+
+FuturesSet Board::getFutures() const
+{
+    FuturesSet result;
+    //MoveSet moves;
+    Board brd;
+    for(Move &mv: getPseudolegalMoves(playerColor))
     {
-        for(const Piece &p : blackPieces)
+        if(checkIfMoveLegal(mv, &brd))
         {
-            chunk = p.getPseudolegalMoves(*this);
-            for(Move &mv: chunk)
-            {
-                if(checkIfMoveLegal(mv))
-                {
-                    result.push_back(mv);
-                }
-            }
+            result.insert(make_future(mv, brd));
         }
     }
     return result;
@@ -496,11 +488,130 @@ unsigned long long Board::perft(unsigned int depth) const
 
     unsigned long long res = 0;
 
+    FuturesSet futures = getFutures();
+    for(auto &future : futures)
+    {
+        res += future.second.perft(depth - 1);
+    }
+
+    return res;
+}
+
+unsigned long long Board::slow_perft(unsigned int depth) const
+{
+    if(depth == 0)
+    {
+        return 1;
+    }
+
+    unsigned long long res = 0;
+
     MoveSet moves = getLegalMoves();
-    for(Move &mv : moves)
+    for(auto &mv : moves)
     {
         res += doMove(mv).perft(depth - 1);
     }
 
     return res;
+}
+
+std::string Board::getFENString() const
+{
+    /*for(int rank = 7; i >= 0; ++i)
+    {
+
+    }*/
+    return std::string();
+}
+
+double Board::evaluate(Color color, unsigned int depth) const
+{
+    double res = 0.0;
+
+    if(depth > 0)
+    {
+        double bestEval = -1000000000.0;
+        double eval;
+        for(auto &future: getFutures())
+        {
+            if(
+                (eval = -future.second.evaluate(
+                                        color == Color::White? Color::Black : Color::White,
+                                        depth - 1)
+                ) > bestEval
+            )
+            {
+                bestEval = eval;
+            }
+        }
+        return bestEval;
+    }
+
+    //Own pieces
+    for(const Piece &p: color == Color::White? whitePieces : blackPieces)
+    {
+        switch(p.getType())
+        {
+        case PieceType::Pawn:
+            res += 100.0;
+            break;
+        case PieceType::Knight:
+            res += 300.0;
+            break;
+        case PieceType::Bishop:
+            res += 300.0;
+            break;
+        case PieceType::Rook:
+            res += 500.0;
+            break;
+        case PieceType::Queen:
+            res += 900.0;
+            break;
+        default:
+            break;
+        }
+    }
+
+    //Enemy pieces
+    for(const Piece &p: color == Color::White? blackPieces : whitePieces)
+    {
+        switch(p.getType())
+        {
+        case PieceType::Pawn:
+            res -= 100.0;
+            break;
+        case PieceType::Knight:
+            res -= 300.0;
+            break;
+        case PieceType::Bishop:
+            res -= 300.0;
+            break;
+        case PieceType::Rook:
+            res -= 500.0;
+            break;
+        case PieceType::Queen:
+            res -= 900.0;
+            break;
+        default:
+            break;
+        }
+    }
+
+    return res;
+}
+
+Move Board::bestMove(unsigned int depth) const
+{
+    Move best;
+    double bestEval = -100000000.0;
+    double eval;
+    for(auto &future: getFutures())
+    {
+        if((eval = future.second.evaluate(playerColor, depth)) > bestEval)
+        {
+            best = future.first;
+            bestEval = eval;
+        }
+    }
+    return best;
 }

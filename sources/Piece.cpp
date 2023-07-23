@@ -138,7 +138,7 @@ MoveSet Piece::pawnMoves(const Board &board) const
     //Capture
     dest = pos.add(1, direction);
     target = board.getPieceByPos(dest);
-    const Piece *enPass = board.getEnPassPawn();
+    Piece enPass = board.getEnPassPawn();
     if(target != nullptr && target->getColor() != body.color)
     {
         if(dest.getRank() == promotionRank)
@@ -159,7 +159,7 @@ MoveSet Piece::pawnMoves(const Board &board) const
         }
     }
     //En passant (or however it called idk)
-    else if(enPass != nullptr && enPass->getPos() == pos.add(1, 0) && enPass->getColor() != body.color)
+    else if(enPass != Piece() && enPass.getPos() == pos.add(1, 0) && enPass.getColor() != body.color)
     {
         result.push_back(Move::EnPassant(*this, dest));
     }
@@ -186,7 +186,7 @@ MoveSet Piece::pawnMoves(const Board &board) const
         }
     }
     //En passant (or however it called idk)
-    else if(enPass != nullptr && enPass->getPos() == pos.add(-1, 0) && enPass->getColor() != body.color)
+    else if(enPass != Piece() && enPass.getPos() == pos.add(-1, 0) && enPass.getColor() != body.color)
     {
         result.push_back(Move::EnPassant(*this, dest));
     }
