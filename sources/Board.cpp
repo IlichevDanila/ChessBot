@@ -453,6 +453,11 @@ unsigned long long Board::perft(unsigned int depth) const
         return 1;
     }
 
+    if(depth == 1)
+    {
+        return getLegalMoves().size();
+    }
+
     unsigned long long res = 0;
 
     FuturesSet futures = getFutures();
@@ -464,22 +469,27 @@ unsigned long long Board::perft(unsigned int depth) const
     return res;
 }
 
-unsigned long long Board::slow_perft(unsigned int depth) const
+void Board::divide(unsigned int depth) const
 {
     if(depth == 0)
     {
-        return 1;
+        return;
     }
 
-    unsigned long long res = 0;
-
-    MoveSet moves = getLegalMoves();
-    for(auto &mv : moves)
+    if(depth == 1)
     {
-        res += doMove(mv).perft(depth - 1);
+        for(auto &mv: getLegalMoves())
+        {
+            std::cout << mv.ToNotation() << ": 0" << std::endl;
+        }
+        return;
     }
 
-    return res;
+    FuturesSet futures = getFutures();
+    for(auto &future : futures)
+    {
+        std::cout << future.first.ToNotation() << ": " << future.second.perft(depth - 1) << std::endl;
+    }
 }
 
 std::string Board::getFENString() const

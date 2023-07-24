@@ -37,7 +37,13 @@ int main()
         {
             unsigned int depth;
             std::cin >> depth;
-            std::cout << board.slow_perft(depth) << std::endl;
+            std::cout << board.perft(depth) << std::endl;
+        }
+        else if(notation == "divide")
+        {
+            unsigned int depth;
+            std::cin >> depth;
+            board.divide(depth);
         }
         else if(notation == "play")
         {

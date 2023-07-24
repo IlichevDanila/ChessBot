@@ -61,7 +61,7 @@ public:
     std::string getFENString() const;
 
     unsigned long long perft(unsigned int depth = 1) const;
-    unsigned long long slow_perft(unsigned int depth = 1) const;
+    void divide(unsigned int depth = 2) const;
 
     friend class Searcher;
 };

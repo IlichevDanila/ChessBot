@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "Piece.hpp"
 #include "Move.hpp"
 #include "Board.hpp"
@@ -48,10 +50,12 @@ const Piece *PieceSet::find(Piece piece) const
 
 Piece *PieceSet::find(Position pos)
 {
-    if(size == 0)
-        return nullptr;
+    if(pieces[0].getType() == PieceType::King &&  pieces[0].getPos() == pos)
+    {
+        return &pieces[0];
+    }
 
-    for(int i = 0; i < size; ++i)
+    for(int i = 1; i < size + 1; ++i)
     {
         if(pieces[i].pos == pos)
         {
@@ -64,10 +68,12 @@ Piece *PieceSet::find(Position pos)
 
 const Piece *PieceSet::find(Position pos) const
 {
-    if(size == 0)
-        return nullptr;
+    if(pieces[0].getType() == PieceType::King &&  pieces[0].getPos() == pos)
+    {
+        return &pieces[0];
+    }
 
-    for(int i = 0; i < size; ++i)
+    for(int i = 1; i < size + 1; ++i)
     {
         if(pieces[i].pos == pos)
         {
