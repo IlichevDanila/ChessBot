@@ -64,12 +64,12 @@ Board Board::startingBoard()
     result.whitePieces.push_back(Piece(Color::White, PieceType::Pawn, Position(7, 1)));
 
     result.whitePieces.push_back(Piece(Color::White, PieceType::Rook, Position(0, 0)));
-    result.whitePieces.push_back(Piece(Color::White, PieceType::Bishop, Position(1, 0)));
-    result.whitePieces.push_back(Piece(Color::White, PieceType::Knight, Position(2, 0)));
+    result.whitePieces.push_back(Piece(Color::White, PieceType::Knight, Position(1, 0)));
+    result.whitePieces.push_back(Piece(Color::White, PieceType::Bishop, Position(2, 0)));
     result.whitePieces.push_back(Piece(Color::White, PieceType::Queen, Position(3, 0)));
     result.whitePieces.push_back(Piece(Color::White, PieceType::King, Position(4, 0)));
-    result.whitePieces.push_back(Piece(Color::White, PieceType::Knight, Position(5, 0)));
-    result.whitePieces.push_back(Piece(Color::White, PieceType::Bishop, Position(6, 0)));
+    result.whitePieces.push_back(Piece(Color::White, PieceType::Bishop, Position(5, 0)));
+    result.whitePieces.push_back(Piece(Color::White, PieceType::Knight, Position(6, 0)));
     result.whitePieces.push_back(Piece(Color::White, PieceType::Rook, Position(7, 0)));
 
 
@@ -83,12 +83,12 @@ Board Board::startingBoard()
     result.blackPieces.push_back(Piece(Color::Black, PieceType::Pawn, Position(7, 6)));
 
     result.blackPieces.push_back(Piece(Color::Black, PieceType::Rook, Position(0, 7)));
-    result.blackPieces.push_back(Piece(Color::Black, PieceType::Bishop, Position(1, 7)));
-    result.blackPieces.push_back(Piece(Color::Black, PieceType::Knight, Position(2, 7)));
+    result.blackPieces.push_back(Piece(Color::Black, PieceType::Knight, Position(1, 7)));
+    result.blackPieces.push_back(Piece(Color::Black, PieceType::Bishop, Position(2, 7)));
     result.blackPieces.push_back(Piece(Color::Black, PieceType::Queen, Position(3, 7)));
     result.blackPieces.push_back(Piece(Color::Black, PieceType::King, Position(4, 7)));
-    result.blackPieces.push_back(Piece(Color::Black, PieceType::Knight, Position(5, 7)));
-    result.blackPieces.push_back(Piece(Color::Black, PieceType::Bishop, Position(6, 7)));
+    result.blackPieces.push_back(Piece(Color::Black, PieceType::Bishop, Position(5, 7)));
+    result.blackPieces.push_back(Piece(Color::Black, PieceType::Knight, Position(6, 7)));
     result.blackPieces.push_back(Piece(Color::Black, PieceType::Rook, Position(7, 7)));
 
     return result;
@@ -480,7 +480,7 @@ void Board::divide(unsigned int depth) const
     {
         for(auto &mv: getLegalMoves())
         {
-            std::cout << mv.ToNotation() << ": 0" << std::endl;
+            std::cout << mv.ToNotation() << ": 1" << std::endl;
         }
         return;
     }
@@ -490,6 +490,8 @@ void Board::divide(unsigned int depth) const
     {
         std::cout << future.first.ToNotation() << ": " << future.second.perft(depth - 1) << std::endl;
     }
+
+    std::cout << std::endl << "Nodes searched: " << perft(depth) << std::endl;
 }
 
 std::string Board::getFENString() const
