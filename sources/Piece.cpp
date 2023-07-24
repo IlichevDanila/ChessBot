@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <iostream>
 
 #include "Piece.hpp"
 #include "Move.hpp"
@@ -297,6 +298,7 @@ MoveSet Piece::rookMoves(const Board &board) const
         Position dest = pos;
         while(dest.safeToAdd(direction))
         {
+            dest = dest.add(direction);
             const Piece *target = board.getPieceByPos(dest);
             if(target != nullptr && target->getColor() == body.color)
             {

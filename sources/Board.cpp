@@ -6,6 +6,11 @@
 #include "Move.hpp"
 #include "Board.hpp"
 
+const char Board::DisplayTypes[2][7] = {
+    {'.', 'p', 'n', 'b', 'r', 'q', 'k'},
+    {'.', 'P', 'N', 'B', 'R', 'Q', 'K'}
+};
+
 Board::Board()
 {}
 
@@ -191,10 +196,6 @@ const Piece *Board::getPieceByPos(Position pos, Color hint) const
 
 std::string Board::getDislayString() const
 {
-    static char DisplayTypes[2][7] = {
-        {'.', 'P', 'N', 'B', 'R', 'Q', 'K'},
-        {'.', 'p', 'n', 'b', 'r', 'q', 'k'}
-    };
     std::string res;
     for(int rank = 7; rank >= 0; --rank)
     {
@@ -482,6 +483,7 @@ void Board::divide(unsigned int depth) const
         {
             std::cout << mv.ToNotation() << ": 1" << std::endl;
         }
+        std::cout << std::endl << "Nodes searched: " << getLegalMoves().size() << std::endl;
         return;
     }
 
@@ -496,11 +498,46 @@ void Board::divide(unsigned int depth) const
 
 std::string Board::getFENString() const
 {
-    /*for(int rank = 7; i >= 0; ++i)
+    std::string res = "";
+    for(int rank = 7; rank >= 0; --rank)
     {
+        int space = 0;
+        for(int file = 0; file < 9; ++file)
+        {
+            const Piece *p = getPieceByPos(Position(file, rank));
+            if(p == nullptr)
+            {
+                ++space;
+                continue;
+            }
 
-    }*/
-    return std::string();
+            if(space != 0)
+            {
+                res += std::to_string(space);
+            }
+            res += DisplayTypes[p->getColor()][p->getType()];
+        }
+        if(rank > 0)
+        {
+            res += "/";
+        }
+    }
+
+    res += ' ';
+    res += playerColor == Color::Black? 'b' : 'w';
+    res += " - ";
+    if(enPassPawn != Piece())
+    {
+        res += std::to_string(enPassPawn.getPos().getFile() + 'a');
+        res += playerColor == Color::White? '6' : '3';
+    }
+    else
+    {
+        res += '-';
+    }
+    res += "0 0";
+
+    return res;
 }
 
 bool Board::ifCheck() const

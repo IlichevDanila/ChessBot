@@ -110,9 +110,9 @@ private:
 
 public:
     inline Piece *begin() { return pieces; }
-    inline Piece *end() { return &pieces[size]; }
+    inline Piece *end() { return &pieces[size + 1]; }
     inline const Piece *begin() const { return pieces; }
-    inline const Piece *end() const { return &pieces[size]; }
+    inline const Piece *end() const { return &pieces[size + 1]; }
 
     void push_back(Piece newPiece);
 

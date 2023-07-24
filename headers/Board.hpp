@@ -19,6 +19,8 @@ private:
     PieceSet blackPieces;
     Piece enPassPawn;
 
+    static const char DisplayTypes[2][7];
+
 public:
     Board();
     Board(const Board &rhs);
