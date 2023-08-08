@@ -488,12 +488,16 @@ void Board::divide(unsigned int depth) const
     }
 
     FuturesSet futures = getFutures();
+    unsigned long long perfts = 0;
+    unsigned long long perftRes = 0;
     for(auto &future : futures)
     {
-        std::cout << future.first.ToNotation() << ": " << future.second.perft(depth - 1) << std::endl;
+        perftRes = future.second.perft(depth - 1);
+        perfts += perftRes;
+        std::cout << future.first.ToNotation() << ": " << perftRes << std::endl;
     }
 
-    std::cout << std::endl << "Nodes searched: " << perft(depth) << std::endl;
+    std::cout << std::endl << "Nodes searched: " << perfts << std::endl;
 }
 
 std::string Board::getFENString() const

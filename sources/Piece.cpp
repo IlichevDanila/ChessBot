@@ -165,8 +165,9 @@ MoveSet Piece::pawnMoves(const Board &board) const
     dest = pos.add(1, direction);
     target = board.getPieceByPos(dest);
     Piece enPass = board.getEnPassPawn();
-    if(target != nullptr && target->getColor() != body.color)
+    if(pos.safeToAdd(1, direction) && target != nullptr && target->getColor() != body.color)
     {
+        //std::cout << "Captire(1) from " << pos.to_string() << " to " << dest.to_string() << std::endl;
         if(dest.getRank() == promotionRank)
         {
             for(PieceType promType : {
@@ -185,15 +186,17 @@ MoveSet Piece::pawnMoves(const Board &board) const
         }
     }
     //En passant (or however it called idk)
-    else if(enPass != Piece() && enPass.getPos() == pos.add(1, 0) && enPass.getColor() != body.color)
+    else if(pos.safeToAdd(1, 0) && enPass != Piece() && enPass.getPos() == pos.add(1, 0) && enPass.getColor() != body.color)
     {
+        //std::cout << "EnPass(1) from " << pos.to_string() << std::endl;
         result.push_back(Move::EnPassant(*this, dest));
     }
 
     dest = pos.add(-1, direction);
     target = board.getPieceByPos(dest);
-    if(target != nullptr && target->getColor() != body.color)
+    if(pos.safeToAdd(-1, direction) && target != nullptr && target->getColor() != body.color)
     {
+        //std::cout << "Captire(2) from " << pos.to_string() << " to " << dest.to_string() << std::endl;
         if(dest.getRank() == promotionRank)
         {
             for(PieceType promType : {
@@ -212,8 +215,9 @@ MoveSet Piece::pawnMoves(const Board &board) const
         }
     }
     //En passant (or however it called idk)
-    else if(enPass != Piece() && enPass.getPos() == pos.add(-1, 0) && enPass.getColor() != body.color)
+    else if(pos.safeToAdd(-1, 0) && enPass != Piece() && enPass.getPos() == pos.add(-1, 0) && enPass.getColor() != body.color)
     {
+        //std::cout << "EnPass(2) from " << pos.to_string() << std::endl;
         result.push_back(Move::EnPassant(*this, dest));
     }
 
@@ -487,7 +491,7 @@ std::uint64_t Piece::pawnAttackMask(const Board &board) const
 {
     std::uint64_t res = 0;
 
-    char direction = (body.color == Color::Black)? 7 : 0;
+    char direction = (body.color == Color::Black)? -1 : 1;
     
     if(pos.safeToAdd(1, direction))
     {
@@ -495,7 +499,7 @@ std::uint64_t Piece::pawnAttackMask(const Board &board) const
     }
     if(pos.safeToAdd(-1, direction))
     {
-        res |= pos.add(1, direction).boardMask();
+        res |= pos.add(-1, direction).boardMask();
     }
 
     return res;
