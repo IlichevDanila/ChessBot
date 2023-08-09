@@ -93,8 +93,8 @@ private:
 
 public:
     double simple_eval(const Board &board, Color color) const;
-    double deep_eval(const Board &board, Color color, unsigned int depth = 1) const;
-    Move getBestMove(const Board &board, Color color, unsigned int depth = 1) const;
+    double deep_eval(const Board &board, Color color, unsigned int depth = 1, double alpha = infNeg, double beta = infPos) const;
+    Move getBestMove(const Board &board, Color color, unsigned int depth = 1, double alpha = infNeg, double beta = infPos) const;
 };
 
 #endif

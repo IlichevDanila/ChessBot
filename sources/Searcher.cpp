@@ -167,38 +167,40 @@ double Searcher::simple_eval(const Board &board, Color color) const
     return res;
 }
 
-double Searcher::deep_eval(const Board &board, Color color, unsigned int depth) const
+double Searcher::deep_eval(const Board &board, Color color, unsigned int depth, double alpha, double beta) const
 {
     if(depth == 0)
     {
         return simple_eval(board, color);
     }
 
-    double bestEval = infNeg;
     double eval;
     for(auto &future: board.getFutures())
     {
-        if((eval = -deep_eval(future.second, oppositeColor(color), depth - 1)) > bestEval)
+        eval = -deep_eval(future.second, oppositeColor(color), depth - 1, -beta, -alpha);
+        if(eval >= beta)
         {
-            bestEval = eval;
+            return beta;
         }
+
+        alpha = std::max(alpha, eval);
     }
 
-    return bestEval;
+    return alpha;
 }
 
-Move Searcher::getBestMove(const Board &board, Color color, unsigned int depth) const
+Move Searcher::getBestMove(const Board &board, Color color, unsigned int depth, double alpha, double beta) const
 {
     Move best;
-    double bestEval = infNeg;
     double eval;
     for(auto &future: board.getFutures())
     {
-        if((eval = -deep_eval(future.second, oppositeColor(color), depth)) > bestEval)
+        eval = -deep_eval(future.second, oppositeColor(color), depth, -beta, -alpha);
+        if(eval > alpha)
         {
-            bestEval = eval;
             best = future.first;
         }
+        alpha = std::max(alpha, eval);
     }
     return best;
 }
