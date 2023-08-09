@@ -36,3 +36,12 @@
 
 #stockfish
 stockfish*
+
+#GUI
+PyChess*
+
+#My lichess token
+Token.txt
+
+#Logs
+Log*

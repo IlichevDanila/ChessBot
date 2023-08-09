@@ -558,6 +558,16 @@ bool Board::ifCheck(Color color) const
     return (attack & king->getPos().boardMask()) != 0;
 }
 
+bool Board::ifMate() const
+{
+    return getLegalMoves().size() == 0 && ifCheck();
+}
+
+bool Board::ifPat() const
+{
+    return getLegalMoves().size() == 0 && !ifCheck();
+}
+
 Board Board::fromFEN(const std::string &pieces,
                         char c,
                         const std::string &castles,

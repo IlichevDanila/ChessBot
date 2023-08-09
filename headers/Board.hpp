@@ -60,8 +60,8 @@ public:
 
     bool ifCheck() const;
     bool ifMate() const;
+    bool ifPat() const;
     bool ifCheck(Color color) const;
-    bool ifMate(Color color) const;
 
     std::uint64_t getAttackedMask(Color color) const;
 

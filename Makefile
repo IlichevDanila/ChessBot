@@ -5,8 +5,12 @@ LFLAGS=
 SOURCES=$(wildcard sources/*.cpp)
 OBJS=$(patsubst sources/%.cpp, objs/%.o, $(SOURCES))
 
-all: main.o $(OBJS)
+all: uci.o main.o $(OBJS)
 	$(CC) $(LFLAGS) main.o $(OBJS) -o test
+	$(CC) $(LFLAGS) uci.o $(OBJS) -o uci
+
+uci.o: uci.cpp
+	$(CC) $(CFLAGS) uci.cpp -c -o uci.o
 
 main.o: main.cpp
 	$(CC) $(CFLAGS) main.cpp -c -o main.o
