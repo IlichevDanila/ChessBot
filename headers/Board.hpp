@@ -32,6 +32,14 @@ public:
 
     static Board startingBoard();
 
+    static Board fromFEN(const std::string &pieces,
+                        char c,
+                        const std::string &castles,
+                        char es,
+                        int undoable_moves,
+                        int moves);
+
+
     inline Color currentColor() const { return playerColor; }
     inline Piece getEnPassPawn() const { return enPassPawn; }
 

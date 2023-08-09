@@ -53,6 +53,18 @@ int main()
             std::cout << move.ToNotation() << std::endl;
             std::cout << std::endl << board.getDislayString() << std::endl;
         }
+        else if(notation == "fen")
+        {
+            std::string pieces;
+            char c;
+            std::string castles;
+            char es;
+            int undoable_moves;
+            int moves;
+            std::cin >> pieces >> c >> castles >> es >> undoable_moves >> moves;
+            board = Board::fromFEN(pieces, c, castles, es, undoable_moves, moves);
+            std::cout << std::endl << board.getDislayString() << std::endl;
+        }
         else
         {
             Move move = Move::FromNotation(notation, board);

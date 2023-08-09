@@ -557,3 +557,108 @@ bool Board::ifCheck(Color color) const
     std::uint64_t attack = getAttackedMask(color == Color::White? Color::Black : Color::White);
     return (attack & king->getPos().boardMask()) != 0;
 }
+
+Board Board::fromFEN(const std::string &pieces,
+                        char c,
+                        const std::string &castles,
+                        char es,
+                        int undoable_moves,
+                        int moves)
+{
+    Board brd;
+
+    int file = 0;
+    int rank = 7;
+    Piece newPiece;
+
+    for(auto ch: pieces)
+    {
+        std::cout << "Pushing " << ch << " to desk (" << file << "; " << rank << ")" << std::endl;
+        switch(ch)
+        {
+        case 'p':
+            brd.blackPieces.push_back(Piece(Color::Black, PieceType::Pawn, Position(file, rank)));
+            break;
+        case 'P':
+            brd.whitePieces.push_back(Piece(Color::White, PieceType::Pawn, Position(file, rank)));
+            break;
+        case 'n':
+            brd.blackPieces.push_back(Piece(Color::Black, PieceType::Knight, Position(file, rank)));
+            break;
+        case 'N':
+            brd.whitePieces.push_back(Piece(Color::White, PieceType::Knight, Position(file, rank)));
+            break;
+        case 'b':
+            brd.blackPieces.push_back(Piece(Color::Black, PieceType::Bishop, Position(file, rank)));
+            break;
+        case 'B':
+            brd.whitePieces.push_back(Piece(Color::White, PieceType::Bishop, Position(file, rank)));
+            break;
+        case 'r':
+            newPiece = Piece(Color::Black, PieceType::Rook, Position(file, rank));
+            newPiece.setMoved();
+            brd.blackPieces.push_back(newPiece);
+            break;
+        case 'R':
+            newPiece = Piece(Color::White, PieceType::Rook, Position(file, rank));
+            newPiece.setMoved();
+            brd.whitePieces.push_back(newPiece);
+            break;
+        case 'q':
+            brd.blackPieces.push_back(Piece(Color::Black, PieceType::Queen, Position(file, rank)));
+            break;
+        case 'Q':
+            brd.whitePieces.push_back(Piece(Color::White, PieceType::Queen, Position(file, rank)));
+            break;
+        case 'k':
+            brd.blackPieces.push_back(Piece(Color::Black, PieceType::King, Position(file, rank)));
+            break;
+        case 'K':
+            brd.whitePieces.push_back(Piece(Color::White, PieceType::King, Position(file, rank)));
+            break;
+        case '/':
+            --rank;
+            file = -1;
+            break;
+        default:
+            std::cout << "Skipping " << (ch - '0') << " files" << std::endl;
+            file += ch - '1';
+        }
+        ++file;
+    }
+
+    brd.playerColor = c == 'w'? Color::White : Color::Black;
+
+    brd.whitePieces.getKing()->setMoved();
+    brd.blackPieces.getKing()->setMoved();
+
+    for(auto ch: castles)
+    {
+        switch(ch)
+        {
+        case 'k':
+            brd.blackPieces.getKing()->setMoved();
+            brd.getPieceByPos(Position(7, 7))->unsetMoved();
+            break;
+        case 'q':
+            brd.blackPieces.getKing()->setMoved();
+            brd.getPieceByPos(Position(0, 7))->unsetMoved();
+            break;
+        case 'K':
+            brd.whitePieces.getKing()->setMoved();
+            brd.getPieceByPos(Position(7, 0))->unsetMoved();
+            break;
+        case 'Q':
+            brd.whitePieces.getKing()->setMoved();
+            brd.getPieceByPos(Position(0, 0))->unsetMoved();
+            break;
+        }
+    }
+
+    if(es != '-')
+    {
+        brd.enPassPawn = *brd.getPieceByPos(brd.playerColor == Color::White? Position(es - '1', 5) : Position(es - '1', 4));
+    }
+
+    return brd;
+}
