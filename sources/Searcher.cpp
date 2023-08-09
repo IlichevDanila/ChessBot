@@ -194,7 +194,6 @@ Move Searcher::getBestMove(const Board &board, Color color, unsigned int depth) 
     double eval;
     for(auto &future: board.getFutures())
     {
-        std::cout << "Inside the for loop" << std::endl;
         if((eval = -deep_eval(future.second, oppositeColor(color), depth)) > bestEval)
         {
             bestEval = eval;

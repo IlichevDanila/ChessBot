@@ -38,17 +38,12 @@ int main()
         )
         {
             commands.push_back(message.substr(prevDel + 1, currDel - prevDel - 1));
-            LOG(commands.size() << ": " << commands.back())
             prevDel = currDel;
         }
         if(prevDel != message.size() - 1)
         {
             commands.push_back(message.substr(prevDel + 1));
-            LOG(commands.size() << ": " << commands.back())
         }
-
-        LOG(commands[0])
-        LOG((commands[0] == "position"))
 
         if(commands[0] == "quit")
         {
@@ -66,11 +61,9 @@ int main()
         }
         else if(commands[0] == "position")
         {
-            LOG("position")
             int nextComm = 1;
             if(commands[1] == "fen")
             {
-                LOG("fen: " << commands[2] << " " << commands[3][0] << " " << commands[4] << " " << commands[5][0] << " " << commands[6] << " " << commands[7])
                 board = Board::fromFEN(commands[2], commands[3][0], commands[4], commands[5][0], std::stoi(commands[6]), std::stoi(commands[7]));
                 nextComm = 8;
             }
@@ -91,7 +84,6 @@ int main()
                 ++nextComm;
                 while(nextComm < commands.size())
                 {
-                    LOG("Move " << commands[nextComm])
                     board = board.doMove(Move::FromNotation(commands[nextComm], board));
                     ++nextComm;
                 }
