@@ -17,7 +17,11 @@ int main()
     std::cout << "MoveSet: " << sizeof(MoveSet) << " byte(s)" << std::endl;
     std::cout << "Board: " << sizeof(Board) << " byte(s)" << std::endl;
 
-    Board board = Board::startingBoard();
+    //Board board = Board::startingBoard();
+    Board board = Board::fromFEN("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R", 'w', "KQkq", '-', 0, 0);
+    /*board = board.doMove(Move::FromNotation("a2-a3", board));
+    board = board.doMove(Move::FromNotation("h3-g2", board));
+    board = board.doMove(Move::FromNotation("a1-b1", board));*/
     std::cout << std::endl << board.getDislayString() << std::endl;
 
     std::string notation;

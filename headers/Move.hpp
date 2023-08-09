@@ -96,7 +96,8 @@ public:
     inline static Move ShortCastle(Color color)
     {
         return Move(
-            Position(), Position(),
+            color == Color::White? Position(4, 0) : Position(4, 7),
+            color == Color::White? Position(6, 7) : Position(6, 7),
             color,
             PieceBody(), CastleType::Short
         );
@@ -105,7 +106,8 @@ public:
     inline static Move LongCastle(Color color)
     {
         return Move(
-            Position(), Position(),
+            color == Color::White? Position(4, 0) : Position(4, 7),
+            color == Color::White? Position(2, 7) : Position(2, 7),
             color,
             PieceBody(), CastleType::Long
         );

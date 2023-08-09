@@ -125,8 +125,8 @@ MoveSet Piece::pawnMoves(const Board &board) const
 {
     MoveSet result;
 
-    char promotionRank = (body.color == Color::Black)? 7 : 0;
-    char direction = (body.color == Color::Black)? -1 : 1;
+    int promotionRank = (body.color == Color::Black)? 0 : 7;
+    int direction = (body.color == Color::Black)? -1 : 1;
 
     //Forward movement
     Position dest = pos.add(0, direction);
@@ -167,9 +167,10 @@ MoveSet Piece::pawnMoves(const Board &board) const
     Piece enPass = board.getEnPassPawn();
     if(pos.safeToAdd(1, direction) && target != nullptr && target->getColor() != body.color)
     {
-        //std::cout << "Captire(1) from " << pos.to_string() << " to " << dest.to_string() << std::endl;
+        //std::cout << "Capture from " << pos.to_string() << " to " << dest.to_string() << " (prom rank is " << promotionRank << ")" << std::endl;
         if(dest.getRank() == promotionRank)
         {
+            //std::cout << "Promption!" << std::endl;
             for(PieceType promType : {
                 PieceType::Knight,
                 PieceType::Bishop,
@@ -188,7 +189,6 @@ MoveSet Piece::pawnMoves(const Board &board) const
     //En passant (or however it called idk)
     else if(pos.safeToAdd(1, 0) && enPass != Piece() && enPass.getPos() == pos.add(1, 0) && enPass.getColor() != body.color)
     {
-        //std::cout << "EnPass(1) from " << pos.to_string() << std::endl;
         result.push_back(Move::EnPassant(*this, dest));
     }
 
@@ -196,9 +196,10 @@ MoveSet Piece::pawnMoves(const Board &board) const
     target = board.getPieceByPos(dest);
     if(pos.safeToAdd(-1, direction) && target != nullptr && target->getColor() != body.color)
     {
-        //std::cout << "Captire(2) from " << pos.to_string() << " to " << dest.to_string() << std::endl;
+        //std::cout << "Capture from " << pos.to_string() << " to " << dest.to_string() << " (prom rank is " << promotionRank << ")" << std::endl;
         if(dest.getRank() == promotionRank)
         {
+            //std::cout << "Promption!" << std::endl;
             for(PieceType promType : {
                 PieceType::Knight,
                 PieceType::Bishop,
@@ -217,7 +218,6 @@ MoveSet Piece::pawnMoves(const Board &board) const
     //En passant (or however it called idk)
     else if(pos.safeToAdd(-1, 0) && enPass != Piece() && enPass.getPos() == pos.add(-1, 0) && enPass.getColor() != body.color)
     {
-        //std::cout << "EnPass(2) from " << pos.to_string() << std::endl;
         result.push_back(Move::EnPassant(*this, dest));
     }
 
@@ -389,8 +389,7 @@ MoveSet Piece::kingMoves(const Board &board) const
     }
 
     //Castles
-    //TODO: check if mediate positions is under attack
-    if(wasMoved())
+    if(wasMoved() || (pos.boardMask() & board.getAttackedMask(oppositeColor(static_cast<Color>(body.color)))) != 0)
     {
         return result;
     }
@@ -403,7 +402,8 @@ MoveSet Piece::kingMoves(const Board &board) const
             board.getPieceByPos(Position(3, 0)) == nullptr &&
             rook != nullptr &&
             rook->getType() == PieceType::Rook &&
-            !rook->wasMoved())
+            !rook->wasMoved() &&
+            (board.getAttackedMask(Color::Black) & 0xc) == 0)
         {
             result.push_back(Move::LongCastle(static_cast<Color>(body.color)));
         }
@@ -413,7 +413,8 @@ MoveSet Piece::kingMoves(const Board &board) const
             board.getPieceByPos(Position(5, 0)) == nullptr &&
             rook != nullptr &&
             rook->getType() == PieceType::Rook &&
-            !rook->wasMoved())
+            !rook->wasMoved() &&
+            (board.getAttackedMask(Color::Black) & 0x60) == 0)
         {
             result.push_back(Move::ShortCastle(static_cast<Color>(body.color)));
         }
@@ -426,7 +427,8 @@ MoveSet Piece::kingMoves(const Board &board) const
             board.getPieceByPos(Position(3, 7)) == nullptr &&
             rook != nullptr &&
             rook->getType() == PieceType::Rook &&
-            !rook->wasMoved())
+            !rook->wasMoved() &&
+            (board.getAttackedMask(Color::White) & 0x0c00000000000000ULL) == 0)
         {
             result.push_back(Move::LongCastle(static_cast<Color>(body.color)));
         }
@@ -436,7 +438,8 @@ MoveSet Piece::kingMoves(const Board &board) const
             board.getPieceByPos(Position(5, 7)) == nullptr &&
             rook != nullptr &&
             rook->getType() == PieceType::Rook &&
-            !rook->wasMoved())
+            !rook->wasMoved() &&
+            (board.getAttackedMask(Color::White) & 0x6000000000000000ULL) == 0)
         {
             result.push_back(Move::ShortCastle(static_cast<Color>(body.color)));
         }

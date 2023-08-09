@@ -567,20 +567,31 @@ Board Board::fromFEN(const std::string &pieces,
 {
     Board brd;
 
+    brd.playerColor = c == 'w'? Color::White : Color::Black;
+
     int file = 0;
     int rank = 7;
     Piece newPiece;
 
     for(auto ch: pieces)
     {
-        std::cout << "Pushing " << ch << " to desk (" << file << "; " << rank << ")" << std::endl;
         switch(ch)
         {
         case 'p':
-            brd.blackPieces.push_back(Piece(Color::Black, PieceType::Pawn, Position(file, rank)));
+            newPiece = Piece(Color::Black, PieceType::Pawn, Position(file, rank));
+            if(rank != 6)
+            {
+                newPiece.setMoved();
+            }
+            brd.blackPieces.push_back(newPiece);
             break;
         case 'P':
-            brd.whitePieces.push_back(Piece(Color::White, PieceType::Pawn, Position(file, rank)));
+            newPiece = Piece(Color::White, PieceType::Pawn, Position(file, rank));
+            if(rank != 1)
+            {
+                newPiece.setMoved();
+            }
+            brd.whitePieces.push_back(newPiece);
             break;
         case 'n':
             brd.blackPieces.push_back(Piece(Color::Black, PieceType::Knight, Position(file, rank)));
@@ -621,13 +632,10 @@ Board Board::fromFEN(const std::string &pieces,
             file = -1;
             break;
         default:
-            std::cout << "Skipping " << (ch - '0') << " files" << std::endl;
             file += ch - '1';
         }
         ++file;
     }
-
-    brd.playerColor = c == 'w'? Color::White : Color::Black;
 
     brd.whitePieces.getKing()->setMoved();
     brd.blackPieces.getKing()->setMoved();
@@ -637,19 +645,19 @@ Board Board::fromFEN(const std::string &pieces,
         switch(ch)
         {
         case 'k':
-            brd.blackPieces.getKing()->setMoved();
+            brd.blackPieces.getKing()->unsetMoved();
             brd.getPieceByPos(Position(7, 7))->unsetMoved();
             break;
         case 'q':
-            brd.blackPieces.getKing()->setMoved();
+            brd.blackPieces.getKing()->unsetMoved();
             brd.getPieceByPos(Position(0, 7))->unsetMoved();
             break;
         case 'K':
-            brd.whitePieces.getKing()->setMoved();
+            brd.whitePieces.getKing()->unsetMoved();
             brd.getPieceByPos(Position(7, 0))->unsetMoved();
             break;
         case 'Q':
-            brd.whitePieces.getKing()->setMoved();
+            brd.whitePieces.getKing()->unsetMoved();
             brd.getPieceByPos(Position(0, 0))->unsetMoved();
             break;
         }
