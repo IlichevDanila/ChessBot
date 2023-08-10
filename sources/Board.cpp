@@ -441,7 +441,7 @@ FuturesSet Board::getFutures() const
     {
         if(checkIfMoveLegal(mv, &brd))
         {
-            result.insert(make_future(mv, brd));
+            result.push_back(make_future(mv, brd));
         }
     }
     return result;
