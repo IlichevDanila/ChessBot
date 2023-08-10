@@ -15,6 +15,7 @@ private:
     static constexpr double queenValue = 900.0;
 
     static constexpr double checkValue = 200.0;
+    static constexpr double mateValue = 1e127;
 
     static constexpr double infPos = 1e128;
     static constexpr double infNeg = -infPos;

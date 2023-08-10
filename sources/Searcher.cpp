@@ -84,10 +84,9 @@ double Searcher::simple_eval(const Board &board, Color color) const
         return 0;
     }
 
-    //Mate is the worst position
     if(board.ifMate())
     {
-        return infNeg;
+        return -mateValue;
     }
 
     std::uint8_t posIdx;
@@ -174,8 +173,22 @@ double Searcher::deep_eval(const Board &board, Color color, unsigned int depth, 
         return simple_eval(board, color);
     }
 
+    FuturesSet futures = board.getFutures();
+    if(futures.size() == 0)
+    {
+        if(board.ifCheck())
+        {
+            return -mateValue;
+        }
+        else
+        {
+            //Pat
+            return 0;
+        }
+    }
+
     double eval;
-    for(auto &future: board.getFutures())
+    for(auto &future: futures)
     {
         eval = -deep_eval(future.second, oppositeColor(color), depth - 1, -beta, -alpha);
         if(eval >= beta)
@@ -191,9 +204,12 @@ double Searcher::deep_eval(const Board &board, Color color, unsigned int depth, 
 
 Move Searcher::getBestMove(const Board &board, Color color, unsigned int depth, double alpha, double beta) const
 {
+    FuturesSet futures = board.getFutures();
+
     Move best;
     double eval;
-    for(auto &future: board.getFutures())
+
+    for(auto &future: futures)
     {
         eval = -deep_eval(future.second, oppositeColor(color), depth, -beta, -alpha);
         if(eval > alpha)

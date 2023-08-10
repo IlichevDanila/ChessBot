@@ -18,7 +18,7 @@ int main()
     std::cout << "Board: " << sizeof(Board) << " byte(s)" << std::endl;
 
     //Board board = Board::startingBoard();
-    Board board = Board::fromFEN("rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR", 'w', "KQkq", '-', 0, 2);
+    Board board = Board::fromFEN("2b1k3/pp2n2p/n1p1p1p1/4P3/2Q1N3/2P2r2/P1q2bPP/3RKB1R", 'w', "-", '-', 0, 2);
     std::cout << std::endl << board.getDislayString() << std::endl;
 
     std::string notation;
