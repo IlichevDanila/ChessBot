@@ -18,13 +18,13 @@ enum PieceType
 
 struct Piece;
 
-enum class File
+enum File
 {
     File_A = 0, File_B, File_C, File_D, File_E, File_F, File_G, File_H,
     None = 15
 };
 
-enum class Rank
+enum Rank
 {
     Rank_1 = 0, Rank_2, Rank_3, Rank_4, Rank_5, Rank_6, Rank_7, Rank_8
 };
