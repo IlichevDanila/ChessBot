@@ -1,15 +1,16 @@
 #ifndef DECLARATIONS_HPP
 #define DECLARATIONS_HPP
 
+#include <cstdint>
 #include <list>
 
-enum class Color
+enum Color
 {
     Black = 0,
     White = 1
 };
 
-enum class PieceType
+enum PieceType
 {
     None = 0,
     Pawn, Knight, Bishop, Rook, Queen, King
